@@ -1,0 +1,1325 @@
+/NEAR/core-contracts/w-near/src/lib.rs
+File {
+  shebang: None,
+  attrs: [
+    Attribute {
+      pound_token: Pound,
+      style: Inner(
+      Bang,
+      ),
+      bracket_token: Bracket,
+      path: Path {
+      leading_colon: None,
+      segments: [
+        PathSegment {
+          ident: Ident {
+          sym: doc,
+          span: bytes(1..404),
+        },
+        arguments: None,
+        },
+      ],
+    },
+    tokens: TokenStream [
+      Punct {
+        char: '=',
+        spacing: Alone,
+        span: bytes(1..404),
+      },
+      Literal {
+        lit: "\n* wNear NEP-141 Token contract\n*\n* The aim of the contract is to enable the wrapping of the native NEAR token into a NEP-141 compatible token.\n* It supports methods `near_deposit` and `near_withdraw` that wraps and unwraps NEAR tokens.\n* They are effectively mint and burn underlying wNEAR tokens.\n*\n* lib.rs is the main entry point.\n* w_near.rs contains interfaces for depositing and withdrawing\n",
+        span: bytes(1..404),
+      },
+    ],
+    },
+  ],
+  items: [
+    Use(
+    ItemUse {
+      attrs: [],
+      vis: Inherited,
+      use_token: Use,
+      leading_colon: None,
+      tree: Path(
+      UsePath {
+      ident: Ident {
+      sym: near_contract_standards,
+      span: bytes(409..432),
+    },
+    colon2_token: Colon2,
+    tree: Path(
+    UsePath {
+      ident: Ident {
+      sym: fungible_token,
+      span: bytes(434..448),
+    },
+    colon2_token: Colon2,
+    tree: Path(
+    UsePath {
+      ident: Ident {
+      sym: metadata,
+      span: bytes(450..458),
+    },
+    colon2_token: Colon2,
+    tree: Group(
+    UseGroup {
+      brace_token: Brace,
+      items: [
+        Name(
+        UseName {
+          ident: Ident {
+          sym: FungibleTokenMetadata,
+          span: bytes(466..487),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: FungibleTokenMetadataProvider,
+          span: bytes(489..518),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: FT_METADATA_SPEC,
+          span: bytes(520..536),
+        },
+        },
+        ),
+        Comma,
+      ],
+    },
+    ),
+    },
+    ),
+    },
+    ),
+    },
+    ),
+    semi_token: Semi,
+    },
+    ),
+    Use(
+    ItemUse {
+      attrs: [],
+      vis: Inherited,
+      use_token: Use,
+      leading_colon: None,
+      tree: Path(
+      UsePath {
+      ident: Ident {
+      sym: near_contract_standards,
+      span: bytes(545..568),
+    },
+    colon2_token: Colon2,
+    tree: Path(
+    UsePath {
+      ident: Ident {
+      sym: fungible_token,
+      span: bytes(570..584),
+    },
+    colon2_token: Colon2,
+    tree: Name(
+    UseName {
+      ident: Ident {
+      sym: FungibleToken,
+      span: bytes(586..599),
+    },
+    },
+    ),
+    },
+    ),
+    },
+    ),
+    semi_token: Semi,
+    },
+    ),
+    Use(
+    ItemUse {
+      attrs: [],
+      vis: Inherited,
+      use_token: Use,
+      leading_colon: None,
+      tree: Path(
+      UsePath {
+      ident: Ident {
+      sym: near_sdk,
+      span: bytes(605..613),
+    },
+    colon2_token: Colon2,
+    tree: Path(
+    UsePath {
+      ident: Ident {
+      sym: borsh,
+      span: bytes(615..620),
+    },
+    colon2_token: Colon2,
+    tree: Group(
+    UseGroup {
+      brace_token: Brace,
+      items: [
+        Name(
+        UseName {
+          ident: Ident {
+          sym: self,
+          span: bytes(623..627),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: BorshDeserialize,
+          span: bytes(629..645),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: BorshSerialize,
+          span: bytes(647..661),
+        },
+        },
+        ),
+      ],
+    },
+    ),
+    },
+    ),
+    },
+    ),
+    semi_token: Semi,
+    },
+    ),
+    Use(
+    ItemUse {
+      attrs: [],
+      vis: Inherited,
+      use_token: Use,
+      leading_colon: None,
+      tree: Path(
+      UsePath {
+      ident: Ident {
+      sym: near_sdk,
+      span: bytes(668..676),
+    },
+    colon2_token: Colon2,
+    tree: Path(
+    UsePath {
+      ident: Ident {
+      sym: json_types,
+      span: bytes(678..688),
+    },
+    colon2_token: Colon2,
+    tree: Group(
+    UseGroup {
+      brace_token: Brace,
+      items: [
+        Name(
+        UseName {
+          ident: Ident {
+          sym: ValidAccountId,
+          span: bytes(691..705),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: U128,
+          span: bytes(707..711),
+        },
+        },
+        ),
+      ],
+    },
+    ),
+    },
+    ),
+    },
+    ),
+    semi_token: Semi,
+    },
+    ),
+    Use(
+    ItemUse {
+      attrs: [
+        Attribute {
+          pound_token: Pound,
+          style: Outer,
+          bracket_token: Bracket,
+          path: Path {
+          leading_colon: None,
+          segments: [
+            PathSegment {
+              ident: Ident {
+              sym: allow,
+              span: bytes(770..775),
+            },
+            arguments: None,
+            },
+          ],
+        },
+        tokens: TokenStream [
+          Group {
+            delimiter: Parenthesis,
+            stream: TokenStream [
+            Ident {
+              sym: unused_imports,
+              span: bytes(776..790),
+            },
+          ],
+          span: bytes(775..791),
+          },
+        ],
+        },
+      ],
+      vis: Inherited,
+      use_token: Use,
+      leading_colon: None,
+      tree: Path(
+      UsePath {
+      ident: Ident {
+      sym: near_sdk,
+      span: bytes(797..805),
+    },
+    colon2_token: Colon2,
+    tree: Name(
+    UseName {
+      ident: Ident {
+      sym: env,
+      span: bytes(807..810),
+    },
+    },
+    ),
+    },
+    ),
+    semi_token: Semi,
+    },
+    ),
+    Use(
+    ItemUse {
+      attrs: [],
+      vis: Inherited,
+      use_token: Use,
+      leading_colon: None,
+      tree: Path(
+      UsePath {
+      ident: Ident {
+      sym: near_sdk,
+      span: bytes(816..824),
+    },
+    colon2_token: Colon2,
+    tree: Group(
+    UseGroup {
+      brace_token: Brace,
+      items: [
+        Name(
+        UseName {
+          ident: Ident {
+          sym: near_bindgen,
+          span: bytes(827..839),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: AccountId,
+          span: bytes(841..850),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: PanicOnDefault,
+          span: bytes(852..866),
+        },
+        },
+        ),
+        Comma,
+        Name(
+        UseName {
+          ident: Ident {
+          sym: PromiseOrValue,
+          span: bytes(868..882),
+        },
+        },
+        ),
+      ],
+    },
+    ),
+    },
+    ),
+    semi_token: Semi,
+    },
+    ),
+    Mod(
+    ItemMod {
+      attrs: [],
+      vis: Inherited,
+      mod_token: Mod,
+      ident: Ident {
+      sym: legacy_storage,
+      span: bytes(890..904),
+    },
+    content: None,
+    semi: Some(
+    Semi,
+    ),
+    },
+    ),
+    Mod(
+    ItemMod {
+      attrs: [],
+      vis: Inherited,
+      mod_token: Mod,
+      ident: Ident {
+      sym: w_near,
+      span: bytes(910..916),
+    },
+    content: None,
+    semi: Some(
+    Semi,
+    ),
+    },
+    ),
+    Macro(
+    ItemMacro {
+      attrs: [],
+      ident: None,
+      mac: Macro {
+      path: Path {
+      leading_colon: None,
+      segments: [
+        PathSegment {
+          ident: Ident {
+          sym: near_sdk,
+          span: bytes(919..927),
+        },
+        arguments: None,
+        },
+        Colon2,
+        PathSegment {
+          ident: Ident {
+          sym: setup_alloc,
+          span: bytes(929..940),
+        },
+        arguments: None,
+        },
+      ],
+    },
+    bang_token: Bang,
+    delimiter: Paren(
+    Paren,
+    ),
+    tokens: TokenStream [],
+    },
+    semi_token: Some(
+    Semi,
+    ),
+    },
+    ),
+    Struct(
+    ItemStruct {
+      attrs: [
+        Attribute {
+          pound_token: Pound,
+          style: Outer,
+          bracket_token: Bracket,
+          path: Path {
+          leading_colon: None,
+          segments: [
+            PathSegment {
+              ident: Ident {
+              sym: near_bindgen,
+              span: bytes(948..960),
+            },
+            arguments: None,
+            },
+          ],
+        },
+        tokens: TokenStream [],
+        },
+        Attribute {
+          pound_token: Pound,
+          style: Outer,
+          bracket_token: Bracket,
+          path: Path {
+          leading_colon: None,
+          segments: [
+            PathSegment {
+              ident: Ident {
+              sym: derive,
+              span: bytes(964..970),
+            },
+            arguments: None,
+            },
+          ],
+        },
+        tokens: TokenStream [
+          Group {
+            delimiter: Parenthesis,
+            stream: TokenStream [
+            Ident {
+              sym: BorshDeserialize,
+              span: bytes(971..987),
+            },
+            Punct {
+              char: ',',
+              spacing: Alone,
+              span: bytes(987..988),
+            },
+            Ident {
+              sym: BorshSerialize,
+              span: bytes(989..1003),
+            },
+            Punct {
+              char: ',',
+              spacing: Alone,
+              span: bytes(1003..1004),
+            },
+            Ident {
+              sym: PanicOnDefault,
+              span: bytes(1005..1019),
+            },
+          ],
+          span: bytes(970..1020),
+          },
+        ],
+        },
+      ],
+      vis: Public(
+      VisPublic {
+      pub_token: Pub,
+    },
+    ),
+    struct_token: Struct,
+    ident: Ident {
+      sym: Contract,
+      span: bytes(1033..1041),
+    },
+    generics: Generics {
+      lt_token: None,
+      params: [],
+      gt_token: None,
+      where_clause: None,
+    },
+    fields: Named(
+    FieldsNamed {
+      brace_token: Brace,
+      named: [
+        Field {
+          attrs: [],
+          vis: Public(
+          VisPublic {
+          pub_token: Pub,
+        },
+        ),
+        ident: Some(
+        Ident {
+          sym: ft,
+          span: bytes(1052..1054),
+        },
+        ),
+        colon_token: Some(
+        Colon,
+        ),
+        ty: Path(
+        TypePath {
+          qself: None,
+          path: Path {
+          leading_colon: None,
+          segments: [
+            PathSegment {
+              ident: Ident {
+              sym: FungibleToken,
+              span: bytes(1056..1069),
+            },
+            arguments: None,
+            },
+          ],
+        },
+        },
+        ),
+        },
+        Comma,
+      ],
+    },
+    ),
+    semi_token: None,
+    },
+    ),
+    Impl(
+    ItemImpl {
+      attrs: [
+        Attribute {
+          pound_token: Pound,
+          style: Outer,
+          bracket_token: Bracket,
+          path: Path {
+          leading_colon: None,
+          segments: [
+            PathSegment {
+              ident: Ident {
+              sym: near_bindgen,
+              span: bytes(1076..1088),
+            },
+            arguments: None,
+            },
+          ],
+        },
+        tokens: TokenStream [],
+        },
+      ],
+      defaultness: None,
+      unsafety: None,
+      impl_token: Impl,
+      generics: Generics {
+      lt_token: None,
+      params: [],
+      gt_token: None,
+      where_clause: None,
+    },
+    trait_: None,
+    self_ty: Path(
+    TypePath {
+      qself: None,
+      path: Path {
+      leading_colon: None,
+      segments: [
+        PathSegment {
+          ident: Ident {
+          sym: Contract,
+          span: bytes(1095..1103),
+        },
+        arguments: None,
+        },
+      ],
+    },
+    },
+    ),
+    brace_token: Brace,
+    items: [
+      Method(
+      ImplItemMethod {
+        attrs: [
+          Attribute {
+            pound_token: Pound,
+            style: Outer,
+            bracket_token: Bracket,
+            path: Path {
+            leading_colon: None,
+            segments: [
+              PathSegment {
+                ident: Ident {
+                sym: init,
+                span: bytes(1112..1116),
+              },
+              arguments: None,
+              },
+            ],
+          },
+          tokens: TokenStream [],
+          },
+        ],
+        vis: Public(
+        VisPublic {
+        pub_token: Pub,
+      },
+      ),
+      defaultness: None,
+      sig: Signature {
+        constness: None,
+        asyncness: None,
+        unsafety: None,
+        abi: None,
+        fn_token: Fn,
+        ident: Ident {
+        sym: new,
+        span: bytes(1129..1132),
+      },
+      generics: Generics {
+        lt_token: None,
+        params: [],
+        gt_token: None,
+        where_clause: None,
+      },
+      paren_token: Paren,
+      inputs: [],
+      variadic: None,
+      output: Type(
+      RArrow,
+      Path(
+      TypePath {
+        qself: None,
+        path: Path {
+        leading_colon: None,
+        segments: [
+          PathSegment {
+            ident: Ident {
+            sym: Self,
+            span: bytes(1138..1142),
+          },
+          arguments: None,
+          },
+        ],
+      },
+      },
+      ),
+      ),
+      },
+      block: Block {
+        brace_token: Brace,
+        stmts: [
+          Expr(
+          Struct(
+          ExprStruct {
+            attrs: [],
+            path: Path {
+            leading_colon: None,
+            segments: [
+              PathSegment {
+                ident: Ident {
+                sym: Self,
+                span: bytes(1153..1157),
+              },
+              arguments: None,
+              },
+            ],
+          },
+          brace_token: Brace,
+          fields: [
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: ft,
+              span: bytes(1172..1174),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: Call(
+            ExprCall {
+              attrs: [],
+              func: Path(
+              ExprPath {
+              attrs: [],
+              qself: None,
+              path: Path {
+              leading_colon: None,
+              segments: [
+                PathSegment {
+                  ident: Ident {
+                  sym: FungibleToken,
+                  span: bytes(1176..1189),
+                },
+                arguments: None,
+                },
+                Colon2,
+                PathSegment {
+                  ident: Ident {
+                  sym: new,
+                  span: bytes(1191..1194),
+                },
+                arguments: None,
+                },
+              ],
+            },
+            },
+            ),
+            paren_token: Paren,
+            args: [
+              MethodCall(
+              ExprMethodCall {
+                attrs: [],
+                receiver: Lit(
+                ExprLit {
+                attrs: [],
+                lit: ByteStr(
+                LitByteStr {
+                token: b"a",
+              },
+              ),
+              },
+              ),
+              dot_token: Dot,
+              method: Ident {
+                sym: to_vec,
+                span: bytes(1200..1206),
+              },
+              turbofish: None,
+              paren_token: Paren,
+              args: [],
+              },
+              ),
+            ],
+            },
+            ),
+            },
+            Comma,
+          ],
+          dot2_token: None,
+          rest: None,
+          },
+          ),
+          ),
+        ],
+      },
+      },
+      ),
+    ],
+    },
+    ),
+    Macro(
+    ItemMacro {
+      attrs: [],
+      ident: None,
+      mac: Macro {
+      path: Path {
+      leading_colon: None,
+      segments: [
+        PathSegment {
+          ident: Ident {
+          sym: near_contract_standards,
+          span: bytes(1230..1253),
+        },
+        arguments: None,
+        },
+        Colon2,
+        PathSegment {
+          ident: Ident {
+          sym: impl_fungible_token_core,
+          span: bytes(1255..1279),
+        },
+        arguments: None,
+        },
+      ],
+    },
+    bang_token: Bang,
+    delimiter: Paren(
+    Paren,
+    ),
+    tokens: TokenStream [
+      Ident {
+        sym: Contract,
+        span: bytes(1281..1289),
+      },
+      Punct {
+        char: ',',
+        spacing: Alone,
+        span: bytes(1289..1290),
+      },
+      Ident {
+        sym: ft,
+        span: bytes(1291..1293),
+      },
+    ],
+    },
+    semi_token: Some(
+    Semi,
+    ),
+    },
+    ),
+    Macro(
+    ItemMacro {
+      attrs: [],
+      ident: None,
+      mac: Macro {
+      path: Path {
+      leading_colon: None,
+      segments: [
+        PathSegment {
+          ident: Ident {
+          sym: near_contract_standards,
+          span: bytes(1296..1319),
+        },
+        arguments: None,
+        },
+        Colon2,
+        PathSegment {
+          ident: Ident {
+          sym: impl_fungible_token_storage,
+          span: bytes(1321..1348),
+        },
+        arguments: None,
+        },
+      ],
+    },
+    bang_token: Bang,
+    delimiter: Paren(
+    Paren,
+    ),
+    tokens: TokenStream [
+      Ident {
+        sym: Contract,
+        span: bytes(1350..1358),
+      },
+      Punct {
+        char: ',',
+        spacing: Alone,
+        span: bytes(1358..1359),
+      },
+      Ident {
+        sym: ft,
+        span: bytes(1360..1362),
+      },
+    ],
+    },
+    semi_token: Some(
+    Semi,
+    ),
+    },
+    ),
+    Impl(
+    ItemImpl {
+      attrs: [
+        Attribute {
+          pound_token: Pound,
+          style: Outer,
+          bracket_token: Bracket,
+          path: Path {
+          leading_colon: None,
+          segments: [
+            PathSegment {
+              ident: Ident {
+              sym: near_bindgen,
+              span: bytes(1368..1380),
+            },
+            arguments: None,
+            },
+          ],
+        },
+        tokens: TokenStream [],
+        },
+      ],
+      defaultness: None,
+      unsafety: None,
+      impl_token: Impl,
+      generics: Generics {
+      lt_token: None,
+      params: [],
+      gt_token: None,
+      where_clause: None,
+    },
+    trait_: Some(
+    (
+    None,
+    Path {
+      leading_colon: None,
+      segments: [
+        PathSegment {
+          ident: Ident {
+          sym: FungibleTokenMetadataProvider,
+          span: bytes(1387..1416),
+        },
+        arguments: None,
+        },
+      ],
+    },
+    For,
+    ),
+    ),
+    self_ty: Path(
+    TypePath {
+      qself: None,
+      path: Path {
+      leading_colon: None,
+      segments: [
+        PathSegment {
+          ident: Ident {
+          sym: Contract,
+          span: bytes(1421..1429),
+        },
+        arguments: None,
+        },
+      ],
+    },
+    },
+    ),
+    brace_token: Brace,
+    items: [
+      Method(
+      ImplItemMethod {
+        attrs: [],
+        vis: Inherited,
+        defaultness: None,
+        sig: Signature {
+        constness: None,
+        asyncness: None,
+        unsafety: None,
+        abi: None,
+        fn_token: Fn,
+        ident: Ident {
+        sym: ft_metadata,
+        span: bytes(1439..1450),
+      },
+      generics: Generics {
+        lt_token: None,
+        params: [],
+        gt_token: None,
+        where_clause: None,
+      },
+      paren_token: Paren,
+      inputs: [
+        Receiver(
+        Receiver {
+          attrs: [],
+          reference: Some(
+          (
+          And,
+          None,
+          ),
+          ),
+          mutability: None,
+          self_token: SelfValue,
+        },
+        ),
+      ],
+      variadic: None,
+      output: Type(
+      RArrow,
+      Path(
+      TypePath {
+        qself: None,
+        path: Path {
+        leading_colon: None,
+        segments: [
+          PathSegment {
+            ident: Ident {
+            sym: FungibleTokenMetadata,
+            span: bytes(1461..1482),
+          },
+          arguments: None,
+          },
+        ],
+      },
+      },
+      ),
+      ),
+      },
+      block: Block {
+        brace_token: Brace,
+        stmts: [
+          Expr(
+          Struct(
+          ExprStruct {
+            attrs: [],
+            path: Path {
+            leading_colon: None,
+            segments: [
+              PathSegment {
+                ident: Ident {
+                sym: FungibleTokenMetadata,
+                span: bytes(1493..1514),
+              },
+              arguments: None,
+              },
+            ],
+          },
+          brace_token: Brace,
+          fields: [
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: spec,
+              span: bytes(1529..1533),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: MethodCall(
+            ExprMethodCall {
+              attrs: [],
+              receiver: Path(
+              ExprPath {
+              attrs: [],
+              qself: None,
+              path: Path {
+              leading_colon: None,
+              segments: [
+                PathSegment {
+                  ident: Ident {
+                  sym: FT_METADATA_SPEC,
+                  span: bytes(1535..1551),
+                },
+                arguments: None,
+                },
+              ],
+            },
+            },
+            ),
+            dot_token: Dot,
+            method: Ident {
+              sym: to_string,
+              span: bytes(1552..1561),
+            },
+            turbofish: None,
+            paren_token: Paren,
+            args: [],
+            },
+            ),
+            },
+            Comma,
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: name,
+              span: bytes(1577..1581),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: Call(
+            ExprCall {
+              attrs: [],
+              func: Path(
+              ExprPath {
+              attrs: [],
+              qself: None,
+              path: Path {
+              leading_colon: None,
+              segments: [
+                PathSegment {
+                  ident: Ident {
+                  sym: String,
+                  span: bytes(1583..1589),
+                },
+                arguments: None,
+                },
+                Colon2,
+                PathSegment {
+                  ident: Ident {
+                  sym: from,
+                  span: bytes(1591..1595),
+                },
+                arguments: None,
+                },
+              ],
+            },
+            },
+            ),
+            paren_token: Paren,
+            args: [
+              Lit(
+              ExprLit {
+                attrs: [],
+                lit: Str(
+                LitStr {
+                token: "Wrapped NEAR fungible token",
+              },
+              ),
+              },
+              ),
+            ],
+            },
+            ),
+            },
+            Comma,
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: symbol,
+              span: bytes(1640..1646),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: Call(
+            ExprCall {
+              attrs: [],
+              func: Path(
+              ExprPath {
+              attrs: [],
+              qself: None,
+              path: Path {
+              leading_colon: None,
+              segments: [
+                PathSegment {
+                  ident: Ident {
+                  sym: String,
+                  span: bytes(1648..1654),
+                },
+                arguments: None,
+                },
+                Colon2,
+                PathSegment {
+                  ident: Ident {
+                  sym: from,
+                  span: bytes(1656..1660),
+                },
+                arguments: None,
+                },
+              ],
+            },
+            },
+            ),
+            paren_token: Paren,
+            args: [
+              Lit(
+              ExprLit {
+                attrs: [],
+                lit: Str(
+                LitStr {
+                token: "wNEAR",
+              },
+              ),
+              },
+              ),
+            ],
+            },
+            ),
+            },
+            Comma,
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: icon,
+              span: bytes(1683..1687),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: Path(
+            ExprPath {
+              attrs: [],
+              qself: None,
+              path: Path {
+              leading_colon: None,
+              segments: [
+                PathSegment {
+                  ident: Ident {
+                  sym: None,
+                  span: bytes(1689..1693),
+                },
+                arguments: None,
+                },
+              ],
+            },
+            },
+            ),
+            },
+            Comma,
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: reference,
+              span: bytes(1707..1716),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: Path(
+            ExprPath {
+              attrs: [],
+              qself: None,
+              path: Path {
+              leading_colon: None,
+              segments: [
+                PathSegment {
+                  ident: Ident {
+                  sym: None,
+                  span: bytes(1718..1722),
+                },
+                arguments: None,
+                },
+              ],
+            },
+            },
+            ),
+            },
+            Comma,
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: reference_hash,
+              span: bytes(1736..1750),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: Path(
+            ExprPath {
+              attrs: [],
+              qself: None,
+              path: Path {
+              leading_colon: None,
+              segments: [
+                PathSegment {
+                  ident: Ident {
+                  sym: None,
+                  span: bytes(1752..1756),
+                },
+                arguments: None,
+                },
+              ],
+            },
+            },
+            ),
+            },
+            Comma,
+            FieldValue {
+              attrs: [],
+              member: Named(
+              Ident {
+              sym: decimals,
+              span: bytes(1770..1778),
+            },
+            ),
+            colon_token: Some(
+            Colon,
+            ),
+            expr: Lit(
+            ExprLit {
+              attrs: [],
+              lit: Int(
+              LitInt {
+              token: 24,
+            },
+            ),
+            },
+            ),
+            },
+            Comma,
+          ],
+          dot2_token: None,
+          rest: None,
+          },
+          ),
+          ),
+        ],
+      },
+      },
+      ),
+    ],
+    },
+    ),
+  ],
+}
+

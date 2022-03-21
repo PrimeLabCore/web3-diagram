@@ -6,3 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+syn = { vesrion = "1.0", features = ["parsing", "full", "extra-traits"] }
+quote = "1.0"
+colored = "2.0.0"
+proc-macro2 = { version = "1.0", features = ["span-locations"] }
+
