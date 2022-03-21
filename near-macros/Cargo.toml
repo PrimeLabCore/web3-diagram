@@ -36,3 +36,6 @@ version = "1.0"
 [dependencies.syn]
 version = "1"
 features = ["full", "fold", "extra-traits", "visit"]
+
+[dependencies.walkdir]
+version = "2.3.2"
