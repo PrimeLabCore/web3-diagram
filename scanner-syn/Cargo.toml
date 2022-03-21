@@ -11,7 +11,7 @@
 
 [package]
 edition = "2018"
-name = "near-macros"
+name = "scanner-syn"
 version = "4.0.0-pre.7"
 authors = ["Near Inc <max@nearprotocol.com>"]
 description = "Main macro of the library for writing NEAR smart contracts.\n"
