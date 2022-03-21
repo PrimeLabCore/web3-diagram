@@ -50,13 +50,13 @@ impl ImplItemMethodInfo {
                     #[derive(borsh::BorshSchema)]
                 },
             };
-            quote! {
-                {
-                    #additional_schema
-                    #[allow(dead_code)]
-                    #input_struct
-                    Some(Input::schema_container())
-                }
+            quote! { None
+                // {
+                //     #additional_schema
+                //     #[allow(dead_code)]
+                //     #input_struct
+                //     Some(Input::schema_container())
+                // }
             }
         } else {
             quote! {
