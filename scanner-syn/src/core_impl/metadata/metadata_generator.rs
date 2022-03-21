@@ -36,13 +36,14 @@ impl ImplItemMethodInfo {
     pub fn metadata_struct(&self) -> TokenStream2 {
         let method_name_str = self.attr_signature_info.ident.to_string();
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
+        let is_public=self.is_public;
         let is_init = matches!(
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
         );
         let mut is_mutable=false;
        
-         let receiver=&self.attr_signature_info.receiver;
+        let receiver=&self.attr_signature_info.receiver;
 
         if let Some(receiver) = receiver {
              is_mutable= !(receiver.mutability.is_none() || receiver.reference.is_none());
@@ -122,6 +123,7 @@ impl ImplItemMethodInfo {
                  name: #method_name_str.to_string(),
                  is_view: #is_view,
                  is_init: #is_init,
+                 is_public:#is_public,
                  is_mutable:#is_mutable,
                 // args: #args,
                  callbacks: vec![#(#callbacks),*],
