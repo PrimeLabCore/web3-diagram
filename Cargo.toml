@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "counter",
+    "near-macros",
+    "playing-with-syn"
+]
