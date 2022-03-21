@@ -1,7 +1,8 @@
 use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::{near_bindgen};
-use near_sdk::borsh;
+pub use near_sdk::near_bindgen;
+pub use near_sdk::borsh;
 
+mod subdir;
 
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
