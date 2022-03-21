@@ -38,6 +38,7 @@ impl ImplItemMethodInfo {
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
         let is_public=self.is_public;
         let is_payable=self.attr_signature_info.is_payable;
+        let is_private_cccalls=self.attr_signature_info.is_private;
         let is_init = matches!(
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
@@ -127,6 +128,7 @@ impl ImplItemMethodInfo {
                  is_public:#is_public,
                  is_mutable:#is_mutable,
                  is_payable:#is_payable,
+                 is_private_cccalls:#is_private_cccalls,
                 // args: #args,
                  callbacks: vec![#(#callbacks),*],
                  callbacks_vec: #callbacks_vec,
