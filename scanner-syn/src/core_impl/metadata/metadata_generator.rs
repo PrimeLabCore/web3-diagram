@@ -37,6 +37,7 @@ impl ImplItemMethodInfo {
         let method_name_str = self.attr_signature_info.ident.to_string();
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
         let is_public=self.is_public;
+        let is_payable=self.attr_signature_info.is_payable;
         let is_init = matches!(
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
@@ -50,7 +51,7 @@ impl ImplItemMethodInfo {
             println!("{:?}",is_mutable);
 
         }
-        let args = if self.attr_signature_info.input_args().next().is_some() {
+        let _args = if self.attr_signature_info.input_args().next().is_some() {
             let input_struct =
                 self.attr_signature_info.input_struct(InputStructType::Deserialization);
             // If input args are JSON then we need to additionally specify schema for them.
@@ -125,6 +126,7 @@ impl ImplItemMethodInfo {
                  is_init: #is_init,
                  is_public:#is_public,
                  is_mutable:#is_mutable,
+                 is_payable:#is_payable,
                 // args: #args,
                  callbacks: vec![#(#callbacks),*],
                  callbacks_vec: #callbacks_vec,
