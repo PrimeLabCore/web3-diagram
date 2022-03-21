@@ -40,6 +40,15 @@ impl ImplItemMethodInfo {
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
         );
+        let mut is_mutable=false;
+       
+         let receiver=&self.attr_signature_info.receiver;
+
+        if let Some(receiver) = receiver {
+             is_mutable= !(receiver.mutability.is_none() || receiver.reference.is_none());
+            println!("{:?}",is_mutable);
+
+        }
         let args = if self.attr_signature_info.input_args().next().is_some() {
             let input_struct =
                 self.attr_signature_info.input_struct(InputStructType::Deserialization);
@@ -50,6 +59,7 @@ impl ImplItemMethodInfo {
                     #[derive(borsh::BorshSchema)]
                 },
             };
+           
             quote! {
                 {
                     #additional_schema
@@ -112,7 +122,8 @@ impl ImplItemMethodInfo {
                  name: #method_name_str.to_string(),
                  is_view: #is_view,
                  is_init: #is_init,
-                 args: #args,
+                 is_mutable:#is_mutable,
+                // args: #args,
                  callbacks: vec![#(#callbacks),*],
                  callbacks_vec: #callbacks_vec,
                  result: #result
