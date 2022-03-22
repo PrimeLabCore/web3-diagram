@@ -45,8 +45,11 @@ impl MetadataVisitor {
         let methods: Vec<TokenStream2> = self
             .impl_item_infos
             .iter()
-            .flat_map(|i| &i.methods)
-            .map(|m| m.metadata_struct())
+            .flat_map(|i| {
+                (i.methods)
+                    .iter()
+                    .map(move |m| m.metadata_struct(i.is_trait_impl))
+            })
             .collect();
         Ok(quote! {
                     #(#methods),*
