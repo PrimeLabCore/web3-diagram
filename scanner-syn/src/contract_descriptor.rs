@@ -13,6 +13,7 @@ pub struct FunctionInfo {
     pub is_public: bool,
     pub is_trait_impl: bool,
     pub is_init: bool,
+    pub is_payable: bool,
     pub is_view: bool,
     pub is_mutable: bool,
     pub is_process: bool,
@@ -30,6 +31,7 @@ impl ToTokens for FunctionInfo {
         let is_public: bool = self.is_public;
         let is_trait_impl: bool = self.is_trait_impl;
         let is_init: bool = self.is_init;
+        let is_payable: bool = self.is_payable;
         let is_view: bool = self.is_view;
         let is_mutable: bool = self.is_mutable;
         let is_process: bool = self.is_process;
@@ -42,6 +44,7 @@ impl ToTokens for FunctionInfo {
                 is_public: #is_public,
                 is_trait_impl: #is_trait_impl,
                 is_init: #is_init,
+                is_payable: #is_payable,
                 is_view: #is_view,
                 is_mutable: #is_mutable,
                 is_process: #is_process,

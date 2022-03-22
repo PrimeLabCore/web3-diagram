@@ -52,7 +52,7 @@ impl ImplItemMethodInfo {
             };
         }
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
-        let is_public = self.is_public || is_trait_impl;
+        let is_public = self.is_public || (is_trait_impl && has_near_sdk_attr);
         let is_payable = self.attr_signature_info.is_payable;
         let is_private_cccalls = self.attr_signature_info.is_private;
         let is_init = matches!(
@@ -139,6 +139,7 @@ impl ImplItemMethodInfo {
             is_public,
             is_trait_impl,
             is_init,
+            is_payable,
             is_view,
             is_mutable,
             is_process: false,
