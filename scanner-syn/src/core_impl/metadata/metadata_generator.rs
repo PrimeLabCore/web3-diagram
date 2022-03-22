@@ -133,23 +133,21 @@ impl ImplItemMethodInfo {
                 }
             }
         };
-
+        
+        let function_info = FunctionInfo{
+            name: method_name_str,
+            is_public,
+            is_trait_impl,
+            is_init,
+            is_view,
+            is_mutable,
+            is_process: false,
+            is_private_cccalls,
+            is_out_of_contract_scope: false,
+            is_event,
+        };
         quote! {
-             near_sdk::MethodMetadata {
-                 name: #method_name_str,
-                 is_view: #is_view,
-                 is_init: #is_init,
-                 is_public:#is_public,
-                 is_mutable:#is_mutable,
-                 is_payable:#is_payable,
-                 is_private_cccalls:#is_private_cccalls,
-                 is_event:#is_event,
-                 is_trait_impl:#is_trait_impl,
-                // args: #args,
-                //  callbacks: vec![#(#callbacks),*],
-                //  callbacks_vec: #callbacks_vec,
-                //result: #result
-             }
+            #function_info
         }
     }
 }
