@@ -1,4 +1,5 @@
 use proc_macro2::Span;
+use std::io::Read;
 use std::{fs::File, path::Path};
 
 use crate::core_impl::*;
@@ -6,6 +7,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, TokenStreamExt};
 use syn::__private::ToTokens;
 use syn::visit::Visit;
+use walkdir::WalkDir;
 
 #[derive(Default)]
 pub struct FunctionInfo {
@@ -64,12 +66,14 @@ impl ToTokens for FunctionInfo {
         });
     }
 
+    ///Converts to TokenStream
     fn to_token_stream(&self) -> TokenStream {
         let mut tokens = TokenStream::new();
         self.to_tokens(&mut tokens);
         tokens
     }
 
+    ///gets the token stream
     fn into_token_stream(self) -> TokenStream
     where
         Self: Sized,
@@ -77,18 +81,20 @@ impl ToTokens for FunctionInfo {
         self.to_token_stream()
     }
 }
-
+///Trait Near smart contracts descriptor
 pub trait ContractDescriptor {
-    fn get_contract_info_for_crate(&mut self) -> ContractInfo;
-    fn get_contract_info_from_file(&mut self, file_path: File) -> ContractInfo;
-    fn get_contract_info_from_file_path(&mut self, file_path: &Path) -> ContractInfo;
-    fn get_contract_info_from_source(&mut self, src: String) -> ContractInfo;
+    fn get_contract_info_for_crate(&self) -> ContractInfo;
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> TokenStream;
+    fn get_tokens_from_source(&self, src: String) -> TokenStream;
 }
 
 pub struct DefaultContractDescriptor;
 
 impl DefaultContractDescriptor {
-    fn metadata(&mut self, item: proc_macro2::TokenStream) -> TokenStream {
+    pub fn new() -> Self {
+        Self {}
+    }
+    fn metadata(&self, item: proc_macro2::TokenStream) -> TokenStream {
         if let Ok(input) = syn::parse2::<syn::File>(item) {
             let mut visitor = MetadataVisitor::new();
             visitor.visit_file(&input);
@@ -111,21 +117,27 @@ impl DefaultContractDescriptor {
 }
 
 impl ContractDescriptor for DefaultContractDescriptor {
-    fn get_contract_info_for_crate(&mut self) -> ContractInfo {
-        todo!();
+    fn get_contract_info_for_crate(&self) -> ContractInfo {
+        for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
+            if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
+                println!("\n{}", entry.path().display());
+                let tokens = self.get_tokens_from_file_path(&entry.path());
+                println!("\n{}", tokens);
+            }
+        }
+        ContractInfo { functions: Vec::new()} 
     }
 
-    fn get_contract_info_from_file(&mut self, file: File) -> ContractInfo {
-        todo!()
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> TokenStream {
+        let mut file = File::open(file_path).expect("Unable to open file");
+        let mut src = String::new();
+        file.read_to_string(&mut src).expect("Unable to read file");
+        self.get_tokens_from_source(src)
     }
 
-    fn get_contract_info_from_file_path(&mut self, file_path: &Path) -> ContractInfo {
-        todo!()
-    }
-
-    fn get_contract_info_from_source(&mut self, src: String) -> ContractInfo {
+    fn get_tokens_from_source(&self, src: String) -> TokenStream {
         let syntax = syn::parse_file(&src).expect("Unable to parse file");
         let tokens = self.metadata(syntax.to_token_stream());
-        todo!()
+        tokens
     }
 }

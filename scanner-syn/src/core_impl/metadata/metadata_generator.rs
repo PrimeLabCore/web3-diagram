@@ -55,6 +55,7 @@ impl ImplItemMethodInfo {
         let is_public = self.is_public || (is_trait_impl && has_near_sdk_attr);
         let is_payable = self.attr_signature_info.is_payable;
         let is_private_cccalls = self.attr_signature_info.is_private;
+        let mut is_process=false;
         let is_init = matches!(
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
@@ -123,6 +124,7 @@ impl ImplItemMethodInfo {
         };
         let result = match &self.attr_signature_info.returns {
             ReturnType::Default => {
+                is_process=true;
                 quote! {
                     None
                 }
@@ -142,7 +144,7 @@ impl ImplItemMethodInfo {
             is_payable,
             is_view,
             is_mutable,
-            is_process: false,
+            is_process,
             is_private_cccalls,
             is_out_of_contract_scope: false,
             is_event,
