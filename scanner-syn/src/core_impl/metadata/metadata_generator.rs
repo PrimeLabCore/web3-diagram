@@ -1,6 +1,7 @@
 use crate::{
-    contract_descriptor::FunctionInfo, core_impl::metadata::type_is_event, BindgenArgType,
-    ImplItemMethodInfo, InputStructType, MethodType, SerializerType,
+    contract_descriptor::FunctionInfo,
+    core_impl::{metadata::type_is_event, AttrSigInfo},
+    BindgenArgType, ImplItemMethodInfo, InputStructType, MethodType, SerializerType,
 };
 
 use proc_macro2::TokenStream as TokenStream2;
@@ -48,7 +49,7 @@ impl ImplItemMethodInfo {
             };
             return quote! {
                 #function_info
-            }
+            };
         }
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
         let is_public = self.is_public || is_trait_impl;
@@ -150,5 +151,17 @@ impl ImplItemMethodInfo {
                 //result: #result
              }
         }
+    }
+}
+
+pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> TokenStream2 {
+    let method_name_str = sig_info.ident.to_string();
+    let function_info = FunctionInfo {
+        name: method_name_str,
+        is_process: true,
+        ..Default::default()
+    };
+    quote! {
+        #function_info
     }
 }

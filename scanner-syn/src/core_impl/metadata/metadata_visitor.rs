@@ -2,17 +2,20 @@
 //! it decorates. Note, that this in an inner attribute. For it to work we should be
 //! able to visit every method in the module intended to be a contract method.
 //! For this we implement the visitor.
-use crate::ItemImplInfo;
+use crate::{ItemFnInfo, ItemImplInfo};
 
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, ToTokens};
 use syn::visit::Visit;
-use syn::{Error, ItemImpl};
+use syn::{Error, FnArg, Ident, ItemFn, ItemImpl};
+
+use super::metadata_generator::metadata_fn_struct;
 
 /// Information relevant to metadata extracted from the `impl` section decorated with `#[near_bindgen]`.
 #[derive(Default)]
 pub struct MetadataVisitor {
     impl_item_infos: Vec<ItemImplInfo>,
+    fn_items_infos: Vec<ItemFnInfo>,
     /// Errors that occured while extracting the data.
     errors: Vec<Error>,
 }
@@ -29,11 +32,21 @@ impl<'ast> Visit<'ast> for MetadataVisitor {
         //         Err(err) => self.errors.push(err),
         //     }
         // }
-       match ItemImplInfo::new(&mut i.clone(), has_near_sdk_attr) {
-                Ok(info) => self.impl_item_infos.push(info),
-                Err(err) => self.errors.push(err),
-            }
+        match ItemImplInfo::new(&mut i.clone(), has_near_sdk_attr) {
+            Ok(info) => self.impl_item_infos.push(info),
+            Err(err) => self.errors.push(err),
+        }
         syn::visit::visit_item_impl(self, i);
+    }
+
+    fn visit_item_fn(&mut self, i: &'ast ItemFn) {
+        match ItemFnInfo::new(&mut i.clone()) {
+            Ok(info) => self.fn_items_infos.push(info),
+            Err(err) => self.errors.push(err),
+        }
+
+        // Delegate to the default impl to visit any nested functions.
+        syn::visit::visit_item_fn(self, i);
     }
 }
 
@@ -55,9 +68,14 @@ impl MetadataVisitor {
                     .map(move |m| m.metadata_struct(i.is_trait_impl, i.has_near_sdk_attr))
             })
             .collect();
+        let functions: Vec<TokenStream2> = self
+            .fn_items_infos
+            .iter()
+            .map(|s| metadata_fn_struct(&s.attr_signature_info))
+            .collect();
         Ok(quote! {
                     #(#methods),*
-
+                    #(#functions),*
         })
     }
 }

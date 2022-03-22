@@ -18,6 +18,9 @@ pub use item_trait_info::ItemTraitInfo;
 
 mod item_impl_info;
 
+mod item_fn_info;
+pub use item_fn_info::*;
+
 mod init_attr;
 pub use init_attr::InitAttr;
 

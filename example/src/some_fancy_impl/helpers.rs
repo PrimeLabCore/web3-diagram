@@ -13,3 +13,7 @@ impl ExampleStruct {
         bar.len()
     }
 }
+
+pub fn bar() {
+    todo!();
+}
