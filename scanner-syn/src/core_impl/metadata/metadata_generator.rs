@@ -159,6 +159,7 @@ pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> TokenStream2 {
     let function_info = FunctionInfo {
         name: method_name_str,
         is_process: true,
+        is_out_of_contract_scope: true,
         ..Default::default()
     };
     quote! {
