@@ -39,7 +39,8 @@ impl ImplItemMethodInfo {
     pub fn metadata_struct(&self, is_trait_impl: bool, has_near_sdk_attr: bool) -> TokenStream2 {
         let method_name_str = self.attr_signature_info.ident.to_string();
 
-        if !has_near_sdk_attr {
+        let is_event = type_is_event(&self.struct_type);
+        if !is_event && !has_near_sdk_attr {
             let function_info = FunctionInfo {
                 name: method_name_str,
                 is_out_of_contract_scope: true,
@@ -57,7 +58,6 @@ impl ImplItemMethodInfo {
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
         );
-        let is_event = type_is_event(&self.struct_type);
         let mut is_mutable = false;
         let receiver = &self.attr_signature_info.receiver;
 
