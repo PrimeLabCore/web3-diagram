@@ -10,15 +10,24 @@ use syn::visit::Visit;
 #[derive(Default)]
 pub struct FunctionInfo {
     pub name: String,
+    /// Whether method marked with `pub`
     pub is_public: bool,
+    /// Whether this is a trait implementation.
     pub is_trait_impl: bool,
+    /// Whether method does not modify the state.
     pub is_init: bool,
+    /// Whether method accepting $NEAR.
     pub is_payable: bool,
+    /// Whether method does not modify the state.
     pub is_view: bool,
+    /// Whether method can modify the state.
     pub is_mutable: bool,
     pub is_process: bool,
+    /// Whether method can accept calls from self (current account)
     pub is_private_cccalls: bool,
+    /// Whether `impl` section decorated with `#[near_bindgen]`
     pub is_out_of_contract_scope: bool,
+    /// Whether method is part of `NearEvent` trait
     pub is_event: bool,
 }
 pub struct ContractInfo {

@@ -1,6 +1,5 @@
 use crate::core_impl::info_extractor::AttrSigInfo;
-use syn::spanned::Spanned;
-use syn::{Error, Ident, ItemFn};
+use syn::ItemFn;
 
 /// Information extracted from `ItemFn`.
 pub struct ItemFnInfo {
