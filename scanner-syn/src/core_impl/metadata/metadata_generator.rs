@@ -134,6 +134,7 @@ impl ImplItemMethodInfo {
                  is_payable:#is_payable,
                  is_private_cccalls:#is_private_cccalls,
                  is_event:#is_event,
+                 is_trait_impl:#is_trait_impl,
                 // args: #args,
                 //  callbacks: vec![#(#callbacks),*],
                 //  callbacks_vec: #callbacks_vec,
