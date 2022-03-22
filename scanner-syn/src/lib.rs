@@ -14,6 +14,9 @@ use quote::quote;
 use syn::visit::Visit;
 use syn::{File, ItemEnum, ItemImpl, ItemStruct, ItemTrait};
 use syn::__private::ToTokens;
+mod contract_descriptor;
+
+use contract_descriptor::{FunctionInfo};
 
 /// `metadata` generates the metadata method and should be placed at the very end of the `lib.rs` file.
 // TODO: Once Rust allows inner attributes and custom procedural macros for modules we should switch this
