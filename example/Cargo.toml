@@ -10,3 +10,5 @@ edition = "2018"
 [dependencies]
 near-sdk = "4.0.0-pre.7"
 scanner-syn = {path = "../scanner-syn"}
+serde = "1"
+serde_json = "1"
