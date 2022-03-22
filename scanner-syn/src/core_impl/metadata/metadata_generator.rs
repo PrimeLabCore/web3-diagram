@@ -1,6 +1,6 @@
 use crate::{
-    core_impl::metadata::type_is_event, BindgenArgType, ImplItemMethodInfo, InputStructType,
-    MethodType, SerializerType,
+    contract_descriptor::FunctionInfo, core_impl::metadata::type_is_event, BindgenArgType,
+    ImplItemMethodInfo, InputStructType, MethodType, SerializerType,
 };
 
 use proc_macro2::TokenStream as TokenStream2;
@@ -36,9 +36,19 @@ impl ImplItemMethodInfo {
     /// }
     /// ```
     /// If args are serialized with Borsh it will not include `#[derive(borsh::BorshSchema)]`.
-    pub fn metadata_struct(&self, is_trait_impl: bool) -> TokenStream2 {
+    pub fn metadata_struct(&self, is_trait_impl: bool, has_near_sdk_attr: bool) -> TokenStream2 {
         let method_name_str = self.attr_signature_info.ident.to_string();
 
+        if !has_near_sdk_attr {
+            let function_info = FunctionInfo {
+                name: method_name_str,
+                is_out_of_contract_scope: true,
+                ..Default::default()
+            };
+            return quote! {
+                #function_info
+            }
+        }
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
         let is_public = self.is_public || is_trait_impl;
         let is_payable = self.attr_signature_info.is_payable;
@@ -47,7 +57,7 @@ impl ImplItemMethodInfo {
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
         );
-        let is_event = type_is_event(&self.struct_type);        
+        let is_event = type_is_event(&self.struct_type);
         let mut is_mutable = false;
         let receiver = &self.attr_signature_info.receiver;
 
@@ -117,7 +127,6 @@ impl ImplItemMethodInfo {
                 }
             }
             ReturnType::Type(_, ty) => {
-             
                 quote! {
                     Some(#ty::schema_container())
                 }

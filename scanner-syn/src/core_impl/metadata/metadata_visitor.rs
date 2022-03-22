@@ -19,17 +19,17 @@ pub struct MetadataVisitor {
 
 impl<'ast> Visit<'ast> for MetadataVisitor {
     fn visit_item_impl(&mut self, i: &'ast ItemImpl) {
-        // let has_near_sdk_attr = i
-        //     .attrs
-        //     .iter()
-        //     .any(|attr| attr.path.to_token_stream().to_string().as_str() == "near_bindgen");
+        let has_near_sdk_attr = i
+            .attrs
+            .iter()
+            .any(|attr| attr.path.to_token_stream().to_string().as_str() == "near_bindgen");
         // if has_near_sdk_attr {
         //     match ItemImplInfo::new(&mut i.clone()) {
         //         Ok(info) => self.impl_item_infos.push(info),
         //         Err(err) => self.errors.push(err),
         //     }
         // }
-       match ItemImplInfo::new(&mut i.clone()) {
+       match ItemImplInfo::new(&mut i.clone(), has_near_sdk_attr) {
                 Ok(info) => self.impl_item_infos.push(info),
                 Err(err) => self.errors.push(err),
             }
@@ -52,7 +52,7 @@ impl MetadataVisitor {
             .flat_map(|i| {
                 (i.methods)
                     .iter()
-                    .map(move |m| m.metadata_struct(i.is_trait_impl))
+                    .map(move |m| m.metadata_struct(i.is_trait_impl, i.has_near_sdk_attr))
             })
             .collect();
         Ok(quote! {

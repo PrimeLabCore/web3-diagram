@@ -3,10 +3,11 @@ use std::{fs::File, path::Path};
 
 use crate::core_impl::*;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{quote, TokenStreamExt};
 use syn::__private::ToTokens;
 use syn::visit::Visit;
 
+#[derive(Default)]
 pub struct FunctionInfo {
     pub name: String,
     pub is_public: bool,
@@ -21,6 +22,48 @@ pub struct FunctionInfo {
 }
 pub struct ContractInfo {
     pub functions: Vec<FunctionInfo>,
+}
+
+impl ToTokens for FunctionInfo {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let name: &str = &self.name;
+        let is_public: bool = self.is_public;
+        let is_trait_impl: bool = self.is_trait_impl;
+        let is_init: bool = self.is_init;
+        let is_view: bool = self.is_view;
+        let is_mutable: bool = self.is_mutable;
+        let is_process: bool = self.is_process;
+        let is_private_cccalls: bool = self.is_private_cccalls;
+        let is_out_of_contract_scope: bool = self.is_out_of_contract_scope;
+        let is_event: bool = self.is_event;
+        tokens.extend(quote! {
+            FunctionInfo {
+                name: #name,
+                is_public: #is_public,
+                is_trait_impl: #is_trait_impl,
+                is_init: #is_init,
+                is_view: #is_view,
+                is_mutable: #is_mutable,
+                is_process: #is_process,
+                is_private_cccalls: #is_private_cccalls,
+                is_out_of_contract_scope: #is_out_of_contract_scope,
+                is_event: #is_event
+            }
+        });
+    }
+
+    fn to_token_stream(&self) -> TokenStream {
+        let mut tokens = TokenStream::new();
+        self.to_tokens(&mut tokens);
+        tokens
+    }
+
+    fn into_token_stream(self) -> TokenStream
+    where
+        Self: Sized,
+    {
+        self.to_token_stream()
+    }
 }
 
 pub trait ContractDescriptor {
