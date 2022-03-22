@@ -20,7 +20,6 @@ pub struct FunctionInfo {
     pub is_event: bool,
 }
 pub struct ContractInfo {
-    pub crate_name: String,
     pub functions: Vec<FunctionInfo>,
 }
 

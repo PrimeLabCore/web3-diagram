@@ -126,7 +126,7 @@ impl ImplItemMethodInfo {
 
         quote! {
              near_sdk::MethodMetadata {
-                 name: #method_name_str.to_string(),
+                 name: #method_name_str,
                  is_view: #is_view,
                  is_init: #is_init,
                  is_public:#is_public,
