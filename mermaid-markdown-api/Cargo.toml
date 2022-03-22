@@ -1,0 +1,11 @@
+[package]
+name = "mermaid-markdown-api"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nicholas Vincent <nicholas.vincent@primelab.io>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+strum = "0.24"
+strum_macros = "0.24"
