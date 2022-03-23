@@ -113,6 +113,36 @@ impl FlowChart {
         // Push a leading space
         self.data.push_str(" ");
     }
+
+    /// Creates a [Mermaid.js Connection](https://mermaid-js.github.io/mermaid/#/flowchart?id=links-between-nodes) with the supplied attributes & appends it to the current data of the flow chart struct (i.e. `self.data`).
+    ///
+    /// # Arguments
+    ///
+    /// * `line_type` -  The type of Line
+    /// * `arrow_type` - The type of Arrow
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mermaid_markdown_api::*;
+    /// let mut flow_chart = FlowChart::new(FlowDirection::TD);
+    /// flow_chart.add_connection(LineType::SolidLine, ArrowType::Arrow);
+    /// ```
+
+    pub fn add_connection(
+        &mut self,
+        line_type: LineType,
+        arrow_type: ArrowType,
+    ) {
+        // Push the LineType
+        self.data.push_str(line_type.get_str("LineType").unwrap());
+        // Push the ArrowType
+        self.data.push_str(arrow_type.get_str("ArrowType").unwrap());
+
+        // Push a leading space
+        self.data.push_str(" ");    
+              
+    }
 }
 
 /// The various different shapes enabled by this API.
@@ -126,6 +156,27 @@ pub enum Shape {
     Rectangle,
     #[strum(props(Left = ">", Right = "]"))]
     Flag,
+}
+
+/// The various different Line types enabled by this API.
+#[derive(strum_macros::EnumProperty, Debug)]
+pub enum LineType {
+    #[strum(props(LineType = "--"))]
+    SolidLine,
+    #[strum(props(LineType = "-.-"))]
+    DashedLine,
+}
+
+/// The various different Arrow types enabled by this API.
+#[derive(strum_macros::EnumProperty, Debug)]
+pub enum ArrowType {
+    #[strum(props(ArrowType = ">"))]
+    Arrow,
+    #[strum(props(ArrowType = "o"))]
+    Circle,
+    #[strum(props(ArrowType = "x"))]
+    X,
+   
 }
 
 /// An Enum representing the possible options for the direction of flow for the diagram.
@@ -155,9 +206,9 @@ mod tests {
         // Add the node to check afterwards
         flow_chart.add_node("A", None, Shape::Circle, "inner text");
 
-        // The string we are expecting
+       // The string we are expecting
         let expected = r"flowchart TD
-	A((inner text)) ";
+        A((inner text)) -..->B((inner text))";
 
         assert_eq!(flow_chart.data, expected);
     }
@@ -205,5 +256,56 @@ mod tests {
 	A>inner text] ";
 
         assert_eq!(flow_chart.data, expected);
+    }
+    #[test]
+    fn it_creates_a_circle_with_soldline_arrow() {
+        // Instantiate the flow chart
+        let mut flow_chart = FlowChart::new(FlowDirection::TD);
+
+        // Add the node to check afterwards
+        flow_chart.add_node("A", None, Shape::Circle, "inner text");
+
+        // Add the connection to check afterwards
+        flow_chart.add_connection(LineType::SolidLine, ArrowType::Arrow);
+
+        // Add the node to check afterwards
+        flow_chart.add_node("B", None, Shape::Circle, "inner text");
+
+        println!("{}", flow_chart.data);
+     
+    }
+    #[test]
+    fn it_creates_a_rectangle_with_dashedline_circle() {
+        // Instantiate the flow chart
+        let mut flow_chart = FlowChart::new(FlowDirection::TD);
+
+        // Add the node to check afterwards
+        flow_chart.add_node("A", None, Shape::Rectangle, "inner text");
+
+        // Add the connection to check afterwards
+        flow_chart.add_connection(LineType::DashedLine, ArrowType::Circle);
+
+        // Add the node to check afterwards
+        flow_chart.add_node("B", None, Shape::Rectangle, "inner text");
+
+        println!("{}", flow_chart.data);
+     
+    }
+    #[test]
+    fn it_creates_a_hexagon_with_dashedline_x() {
+        // Instantiate the flow chart
+        let mut flow_chart = FlowChart::new(FlowDirection::TD);
+
+        // Add the node to check afterwards
+        flow_chart.add_node("A", None, Shape::Hexagon, "inner text");
+
+        // Add the connection to check afterwards
+        flow_chart.add_connection(LineType::DashedLine, ArrowType::X);
+
+        // Add the node to check afterwards
+        flow_chart.add_node("B", None, Shape::Hexagon, "inner text");
+
+        println!("{}", flow_chart.data);
+     
     }
 }
