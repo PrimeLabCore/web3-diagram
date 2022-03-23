@@ -1,5 +1,6 @@
 use syn::{Expr, Ident, Stmt};
 
+// Extracting information from statements of block
 pub fn parse_statements(stmts: &[Stmt], functions_called: &mut Vec<Ident>) {
     for st in stmts {
         match st {
@@ -8,10 +9,35 @@ pub fn parse_statements(stmts: &[Stmt], functions_called: &mut Vec<Ident>) {
                     parse_expr(expr.as_ref(), functions_called);
                 }
             }
-            Stmt::Item(_) => todo!(),
-            Stmt::Expr(_) => todo!(),
+            Stmt::Item(it) => parse_item(it, functions_called),
+            Stmt::Expr(expr) => parse_expr(expr, functions_called),
             Stmt::Semi(_, _) => todo!(),
         }
+    }
+}
+
+fn parse_item(it: &syn::Item, functions_called: &mut Vec<Ident>) {
+    match it {
+        syn::Item::Const(c) => parse_expr(c.expr.as_ref(), functions_called),
+        syn::Item::Static(s) => parse_expr(s.expr.as_ref(), functions_called),
+        syn::Item::Fn(_) => todo!(), // TODO: discuss if we show it in diagram
+        // TODO: probably skip those:
+        syn::Item::ForeignMod(_) => todo!(),
+        syn::Item::Mod(_) => todo!(),
+
+        syn::Item::Enum(_)
+        | syn::Item::ExternCrate(_)
+        | syn::Item::Impl(_)
+        | syn::Item::Macro(_)
+        | syn::Item::Macro2(_)
+        | syn::Item::Struct(_)
+        | syn::Item::Trait(_)
+        | syn::Item::TraitAlias(_)
+        | syn::Item::Type(_)
+        | syn::Item::Union(_)
+        | syn::Item::Use(_)
+        | syn::Item::Verbatim(_) => {}
+        _ => {}
     }
 }
 
@@ -28,7 +54,11 @@ fn parse_expr(expr: &Expr, functions_called: &mut Vec<Ident>) {
         }
         syn::Expr::Box(_) => todo!(),
         syn::Expr::Break(_) => todo!(),
-        syn::Expr::Call(_) => todo!(),
+
+        // TODO: Kinda hard, can get even more complex,
+        // if we try to check use(in cases of functions with same name from different modules/impls/etc)
+        syn::Expr::Call(c) => todo!(),
+
         syn::Expr::Cast(_) => todo!(),
         syn::Expr::Closure(_) => todo!(),
         syn::Expr::Continue(_) => todo!(),
