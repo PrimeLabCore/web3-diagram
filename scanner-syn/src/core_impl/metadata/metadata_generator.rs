@@ -1,6 +1,7 @@
 use crate::{
-    core_impl::metadata::type_is_event, BindgenArgType, ImplItemMethodInfo, InputStructType,
-    MethodType, SerializerType,
+    contract_descriptor::FunctionInfo,
+    core_impl::{metadata::type_is_event, AttrSigInfo},
+    BindgenArgType, ImplItemMethodInfo, InputStructType, MethodType, SerializerType,
 };
 
 use proc_macro2::TokenStream as TokenStream2;
@@ -36,18 +37,29 @@ impl ImplItemMethodInfo {
     /// }
     /// ```
     /// If args are serialized with Borsh it will not include `#[derive(borsh::BorshSchema)]`.
-    pub fn metadata_struct(&self, is_trait_impl: bool) -> TokenStream2 {
+    pub fn metadata_struct(&self, is_trait_impl: bool, has_near_sdk_attr: bool) -> TokenStream2 {
         let method_name_str = self.attr_signature_info.ident.to_string();
 
+        let is_event = type_is_event(&self.struct_type);
+        if !is_event && !has_near_sdk_attr {
+            let function_info = FunctionInfo {
+                name: method_name_str,
+                is_out_of_contract_scope: true,
+                ..Default::default()
+            };
+            return quote! {
+                #function_info
+            };
+        }
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
-        let is_public = self.is_public;
+        let is_public = self.is_public || (is_trait_impl && has_near_sdk_attr);
         let is_payable = self.attr_signature_info.is_payable;
         let is_private_cccalls = self.attr_signature_info.is_private;
+        let mut is_process=false;
         let is_init = matches!(
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
         );
-        let is_event = type_is_event(&self.struct_type);        
         let mut is_mutable = false;
         let receiver = &self.attr_signature_info.receiver;
 
@@ -112,33 +124,46 @@ impl ImplItemMethodInfo {
         };
         let result = match &self.attr_signature_info.returns {
             ReturnType::Default => {
+                is_process=true;
                 quote! {
                     None
                 }
             }
             ReturnType::Type(_, ty) => {
-             
                 quote! {
                     Some(#ty::schema_container())
                 }
             }
         };
-
+        
+        let function_info = FunctionInfo{
+            name: method_name_str,
+            is_public,
+            is_trait_impl,
+            is_init,
+            is_payable,
+            is_view,
+            is_mutable,
+            is_process,
+            is_private_cccalls,
+            is_out_of_contract_scope: false,
+            is_event,
+        };
         quote! {
-             near_sdk::MethodMetadata {
-                 name: #method_name_str,
-                 is_view: #is_view,
-                 is_init: #is_init,
-                 is_public:#is_public,
-                 is_mutable:#is_mutable,
-                 is_payable:#is_payable,
-                 is_private_cccalls:#is_private_cccalls,
-                 is_event:#is_event,
-                // args: #args,
-                //  callbacks: vec![#(#callbacks),*],
-                //  callbacks_vec: #callbacks_vec,
-                //result: #result
-             }
+            #function_info
         }
+    }
+}
+
+pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> TokenStream2 {
+    let method_name_str = sig_info.ident.to_string();
+    let function_info = FunctionInfo {
+        name: method_name_str,
+        is_process: true,
+        is_out_of_contract_scope: true,
+        ..Default::default()
+    };
+    quote! {
+        #function_info
     }
 }

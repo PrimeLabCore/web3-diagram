@@ -6,6 +6,8 @@ use syn::{Error, ImplItem, ItemImpl, Type};
 pub struct ItemImplInfo {
     /// Whether this is a trait implementation.
     pub is_trait_impl: bool,
+    /// Whether `impl` section decorated with `#[near_bindgen]`
+    pub has_near_sdk_attr: bool,
     /// The type for which this `impl` is written.
     pub ty: Type,
     /// Info extracted for each method.
@@ -13,7 +15,7 @@ pub struct ItemImplInfo {
 }
 
 impl ItemImplInfo {
-    pub fn new(original: &mut ItemImpl) -> syn::Result<Self> {
+    pub fn new(original: &mut ItemImpl, has_near_sdk_attr: bool) -> syn::Result<Self> {
         if !original.generics.params.is_empty() {
             return Err(Error::new(
                 original.generics.params.span(),
@@ -30,6 +32,6 @@ impl ItemImplInfo {
                 methods.push(method_info);
             }
         }
-        Ok(Self { is_trait_impl, ty, methods })
+        Ok(Self { is_trait_impl, has_near_sdk_attr, ty, methods})
     }
 }

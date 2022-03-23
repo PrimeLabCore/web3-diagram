@@ -1,18 +1,15 @@
-
+pub use near_sdk::borsh;
 use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
 pub use near_sdk::near_bindgen;
-pub use near_sdk::borsh;
-
 
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
 pub struct Contract {
-    count: u64,
+    pub count: u64,
 }
 
 #[near_bindgen]
 impl Contract {
-
     // TODO: init method is broken
     #[init]
     pub fn new(count: u64) -> Self {
@@ -37,11 +34,10 @@ impl Contract {
 }
 
 #[near_bindgen]
-pub struct SomeStruct{
-}
+pub struct SomeStruct {}
 #[near_bindgen]
-impl SomeStruct{
-pub fn add_two(count: u64) -> u64 {
-    count + 2
-}
+impl SomeStruct {
+    pub fn add_two(count: u64) -> u64 {
+        count + 2
+    }
 }

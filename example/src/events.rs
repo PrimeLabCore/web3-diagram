@@ -58,7 +58,10 @@ impl Display for NearEvent {
 
 impl NearEvent {
     pub fn new_171(version: String, event_kind: Nep171EventKind) -> Self {
-        NearEvent::Nep171(Nep171Event { version, event_kind })
+        NearEvent::Nep171(Nep171Event {
+            version,
+            event_kind,
+        })
     }
 
     pub fn new_171_v1(event_kind: Nep171EventKind) -> Self {
@@ -85,7 +88,11 @@ impl NearEvent {
     }
 
     pub fn log_nft_mint(owner_id: String, token_ids: Vec<String>, memo: Option<String>) {
-        NearEvent::log_nft_mints(vec![NftMintData { owner_id, token_ids, memo }]);
+        NearEvent::log_nft_mints(vec![NftMintData {
+            owner_id,
+            token_ids,
+            memo,
+        }]);
     }
 
     pub fn log_nft_mints(data: Vec<NftMintData>) {
@@ -118,7 +125,12 @@ impl NearEvent {
         memo: Option<String>,
         authorized_id: Option<String>,
     ) {
-        NearEvent::log_nft_burns(vec![NftBurnData { owner_id, authorized_id, token_ids, memo }]);
+        NearEvent::log_nft_burns(vec![NftBurnData {
+            owner_id,
+            authorized_id,
+            token_ids,
+            memo,
+        }]);
     }
 
     pub fn log_nft_burns(data: Vec<NftBurnData>) {
