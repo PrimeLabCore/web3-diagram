@@ -5,7 +5,6 @@
 use crate::contract_descriptor::FunctionInfo;
 use crate::{ItemFnInfo, ItemImplInfo};
 
-
 use quote::ToTokens;
 use syn::visit::Visit;
 use syn::{Error, ItemFn, ItemImpl};
