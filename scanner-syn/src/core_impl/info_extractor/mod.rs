@@ -24,6 +24,9 @@ pub use item_fn_info::*;
 mod init_attr;
 pub use init_attr::InitAttr;
 
+mod statements_parser;
+pub use statements_parser::parse_statements;
+
 pub use item_impl_info::ItemImplInfo;
 
 /// Type of serialization we use.

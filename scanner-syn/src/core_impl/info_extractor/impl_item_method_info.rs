@@ -1,6 +1,5 @@
 use crate::core_impl::info_extractor::AttrSigInfo;
-use proc_macro2::Ident;
-use syn::{ImplItemMethod, Type, Visibility, Stmt};
+use syn::{ImplItemMethod, Type, Visibility};
 
 /// Information extracted from `ImplItemMethod`.
 pub struct ImplItemMethodInfo {
@@ -15,18 +14,12 @@ pub struct ImplItemMethodInfo {
 impl ImplItemMethodInfo {
     /// Process the method and extract information important for near-sdk.
     pub fn new(original: &mut ImplItemMethod, struct_type: Type) -> syn::Result<Self> {
-        let ImplItemMethod { attrs, sig, block, .. } = original;
-        // TODO: let functions_called: Vec<Ident> = statements_parser(&block.stmts);
+        let ImplItemMethod { attrs, sig, .. } = original;
+        // TODO: 
+        // let mut functions_called = vec![];
+        // statements_parser::parse_statements(&block.stmts, &mut functions_called);
         let attr_signature_info = AttrSigInfo::new(attrs, sig)?;
         let is_public = matches!(original.vis, Visibility::Public(_));
         Ok(Self { attr_signature_info, is_public, struct_type })
     }
-}
-
-fn statements_parser(stmts: &[Stmt]) -> Vec<Ident> {
-    let mut functions_called = vec![];
-    for st in stmts {
-        todo!()
-    }
-    functions_called
 }
