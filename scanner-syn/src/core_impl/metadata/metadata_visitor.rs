@@ -23,6 +23,7 @@ pub struct MetadataVisitor {
 
 impl<'ast> Visit<'ast> for MetadataVisitor {
     fn visit_item_impl(&mut self, i: &'ast ItemImpl) {
+        // Marking impl blocks with `near_bindgen`
         let has_near_sdk_attr = i
             .attrs
             .iter()

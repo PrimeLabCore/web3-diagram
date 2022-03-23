@@ -4,7 +4,7 @@ use std::{fs::File, path::Path};
 
 use crate::core_impl::*;
 use proc_macro2::TokenStream;
-use quote::{quote, TokenStreamExt};
+use quote::quote;
 use syn::__private::ToTokens;
 use syn::visit::Visit;
 use walkdir::WalkDir;
@@ -12,7 +12,7 @@ use walkdir::WalkDir;
 #[derive(Default, Debug)]
 pub struct FunctionInfo {
     pub name: String,
-    /// Whether method marked with `pub`
+    /// Whether method is exported
     pub is_public: bool,
     /// Whether this is a trait implementation.
     pub is_trait_impl: bool,
@@ -24,6 +24,7 @@ pub struct FunctionInfo {
     pub is_view: bool,
     /// Whether method can modify the state.
     pub is_mutable: bool,
+    /// Whether method doesn't return a value.
     pub is_process: bool,
     /// Whether method can accept calls from self (current account)
     pub is_private_cccalls: bool,
@@ -120,6 +121,7 @@ impl DefaultContractDescriptor {
 impl ContractDescriptor for DefaultContractDescriptor {
     fn get_contract_info_for_crate(&self) -> ContractInfo {
         let mut contract_functions = vec![];
+        // Walk into every dir to find every `rs` file
         for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
             if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
                 println!("\n{}", entry.path().display());
