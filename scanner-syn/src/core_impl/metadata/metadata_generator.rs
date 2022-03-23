@@ -89,7 +89,7 @@ impl ImplItemMethodInfo {
                  None
             }
         };
-        let callbacks: Vec<_> = self
+        let _callbacks: Vec<_> = self
             .attr_signature_info
             .args
             .iter()
@@ -101,7 +101,7 @@ impl ImplItemMethodInfo {
                 }
             })
             .collect();
-        let callbacks_vec = match self
+        let _callbacks_vec = match self
             .attr_signature_info
             .args
             .iter()
@@ -120,7 +120,7 @@ impl ImplItemMethodInfo {
                 }
             }
         };
-        let result = match &self.attr_signature_info.returns {
+        let _result = match &self.attr_signature_info.returns {
             ReturnType::Default => {
                 is_process=true;
                 quote! {
@@ -134,7 +134,8 @@ impl ImplItemMethodInfo {
             }
         };
         
-        let function_info = FunctionInfo{
+        
+        FunctionInfo{
             name: method_name_str,
             is_public,
             is_trait_impl,
@@ -146,18 +147,17 @@ impl ImplItemMethodInfo {
             is_private_cccalls,
             is_out_of_contract_scope: false,
             is_event,
-        };
-        function_info
+        }
     }
 }
 
 pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> FunctionInfo {
     let method_name_str = sig_info.ident.to_string();
-    let function_info = FunctionInfo {
+
+    FunctionInfo {
         name: method_name_str,
         is_process: true,
         is_out_of_contract_scope: true,
         ..Default::default()
-    };
-    function_info
+    }
 }

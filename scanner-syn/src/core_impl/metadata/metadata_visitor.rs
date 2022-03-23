@@ -5,10 +5,10 @@
 use crate::contract_descriptor::FunctionInfo;
 use crate::{ItemFnInfo, ItemImplInfo};
 
-use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, ToTokens};
+
+use quote::ToTokens;
 use syn::visit::Visit;
-use syn::{Error, FnArg, Ident, ItemFn, ItemImpl};
+use syn::{Error, ItemFn, ItemImpl};
 
 use super::metadata_generator::metadata_fn_struct;
 

@@ -123,14 +123,15 @@ impl ContractDescriptor for DefaultContractDescriptor {
         for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
             if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
                 println!("\n{}", entry.path().display());
-                let file_functions  = self.get_tokens_from_file_path(entry.path());
+                let file_functions = self.get_tokens_from_file_path(entry.path());
                 println!("\n{:?}", file_functions);
                 contract_functions.extend(file_functions);
             }
         }
-        ContractInfo {functions: contract_functions} 
+        ContractInfo {
+            functions: contract_functions,
+        }
     }
-
 
     fn get_tokens_from_file_path(&self, file_path: &Path) -> Vec<FunctionInfo> {
         let mut file = File::open(file_path).expect("Unable to open file");
@@ -141,7 +142,6 @@ impl ContractDescriptor for DefaultContractDescriptor {
 
     fn get_tokens_from_source(&self, src: String) -> Vec<FunctionInfo> {
         let syntax = syn::parse_file(&src).expect("Unable to parse file");
-        let tokens = self.metadata(syntax.to_token_stream()).unwrap();
-        tokens
+        self.metadata(syntax.to_token_stream()).unwrap()
     }
 }
