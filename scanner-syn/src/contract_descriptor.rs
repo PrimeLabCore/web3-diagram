@@ -9,7 +9,7 @@ use syn::__private::ToTokens;
 use syn::visit::Visit;
 use walkdir::WalkDir;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct FunctionInfo {
     pub name: String,
     /// Whether method marked with `pub`
@@ -84,8 +84,8 @@ impl ToTokens for FunctionInfo {
 ///Trait Near smart contracts descriptor
 pub trait ContractDescriptor {
     fn get_contract_info_for_crate(&self) -> ContractInfo;
-    fn get_tokens_from_file_path(&self, file_path: &Path) -> TokenStream;
-    fn get_tokens_from_source(&self, src: String) -> TokenStream;
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> Vec<FunctionInfo>;
+    fn get_tokens_from_source(&self, src: String) -> Vec<FunctionInfo>;
 }
 
 pub struct DefaultContractDescriptor;
@@ -94,50 +94,54 @@ impl DefaultContractDescriptor {
     pub fn new() -> Self {
         Self {}
     }
-    fn metadata(&self, item: proc_macro2::TokenStream) -> TokenStream {
+    fn metadata(&self, item: proc_macro2::TokenStream) -> syn::Result<Vec<FunctionInfo>> {
         if let Ok(input) = syn::parse2::<syn::File>(item) {
             let mut visitor = MetadataVisitor::new();
             visitor.visit_file(&input);
-            let generated = match visitor.generate_metadata_method() {
-                Ok(x) => x,
-                Err(err) => return err.to_compile_error(),
-            };
-            quote! {
-                //#input
-                #generated
-            }
+            visitor.generate_metadata_method()
+        //     let generated = match visitor.generate_metadata_method() {
+        //         Ok(x) => x,
+        //         Err(err) => return err.to_compile_error(),
+        //     };
+        //     quote! {
+        //         //#input
+        //         #generated
+        //     }
         } else {
-            syn::Error::new(
+            syn::__private::Err(syn::Error::new(
                 Span::call_site(),
                 "Failed to parse code decorated with `metadata!{}` macro. Only valid Rust is supported.",
-            )
-            .to_compile_error()
+            ))
+            //.to_compile_error()
         }
     }
 }
 
 impl ContractDescriptor for DefaultContractDescriptor {
     fn get_contract_info_for_crate(&self) -> ContractInfo {
+        let mut contract_functions = vec![];
         for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
             if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
                 println!("\n{}", entry.path().display());
-                let tokens = self.get_tokens_from_file_path(&entry.path());
-                println!("\n{}", tokens);
+                let file_functions  = self.get_tokens_from_file_path(entry.path());
+                println!("\n{:?}", file_functions);
+                contract_functions.extend(file_functions);
             }
         }
-        ContractInfo { functions: Vec::new()} 
+        ContractInfo {functions: contract_functions} 
     }
 
-    fn get_tokens_from_file_path(&self, file_path: &Path) -> TokenStream {
+
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> Vec<FunctionInfo> {
         let mut file = File::open(file_path).expect("Unable to open file");
         let mut src = String::new();
         file.read_to_string(&mut src).expect("Unable to read file");
         self.get_tokens_from_source(src)
     }
 
-    fn get_tokens_from_source(&self, src: String) -> TokenStream {
+    fn get_tokens_from_source(&self, src: String) -> Vec<FunctionInfo> {
         let syntax = syn::parse_file(&src).expect("Unable to parse file");
-        let tokens = self.metadata(syntax.to_token_stream());
+        let tokens = self.metadata(syntax.to_token_stream()).unwrap();
         tokens
     }
 }
