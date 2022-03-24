@@ -3,8 +3,7 @@ pub mod metadata_visitor;
 
 use syn::{Path, Type};
 
-
-pub(crate) fn path_is_event(path: &Path) -> bool {    
+pub(crate) fn path_is_event(path: &Path) -> bool {
     path.leading_colon.is_none()
         && path.segments.len() == 1
         && path.segments.iter().next().unwrap().ident == "NearEvent"

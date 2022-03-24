@@ -2,12 +2,12 @@
 //! it decorates. Note, that this in an inner attribute. For it to work we should be
 //! able to visit every method in the module intended to be a contract method.
 //! For this we implement the visitor.
+use crate::contract_descriptor::FunctionInfo;
 use crate::{ItemFnInfo, ItemImplInfo};
 
-use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, ToTokens};
+use quote::ToTokens;
 use syn::visit::Visit;
-use syn::{Error, FnArg, Ident, ItemFn, ItemImpl};
+use syn::{Error, ItemFn, ItemImpl};
 
 use super::metadata_generator::metadata_fn_struct;
 
@@ -16,12 +16,13 @@ use super::metadata_generator::metadata_fn_struct;
 pub struct MetadataVisitor {
     impl_item_infos: Vec<ItemImplInfo>,
     fn_items_infos: Vec<ItemFnInfo>,
-    /// Errors that occured while extracting the data.
+    /// Errors that occurred while extracting the data.
     errors: Vec<Error>,
 }
 
 impl<'ast> Visit<'ast> for MetadataVisitor {
     fn visit_item_impl(&mut self, i: &'ast ItemImpl) {
+        // Marking impl blocks with `near_bindgen`
         let has_near_sdk_attr = i
             .attrs
             .iter()
@@ -44,8 +45,6 @@ impl<'ast> Visit<'ast> for MetadataVisitor {
             Ok(info) => self.fn_items_infos.push(info),
             Err(err) => self.errors.push(err),
         }
-
-        // Delegate to the default impl to visit any nested functions.
         syn::visit::visit_item_fn(self, i);
     }
 }
@@ -55,11 +54,11 @@ impl MetadataVisitor {
         Default::default()
     }
 
-    pub fn generate_metadata_method(&self) -> syn::Result<TokenStream2> {
+    pub fn generate_metadata_method(&self) -> syn::Result<Vec<FunctionInfo>> {
         if !self.errors.is_empty() {
             return Err(self.errors[0].clone());
         }
-        let methods: Vec<TokenStream2> = self
+        let mut methods: Vec<FunctionInfo> = self
             .impl_item_infos
             .iter()
             .flat_map(|i| {
@@ -68,15 +67,13 @@ impl MetadataVisitor {
                     .map(move |m| m.metadata_struct(i.is_trait_impl, i.has_near_sdk_attr))
             })
             .collect();
-        let functions: Vec<TokenStream2> = self
+        let functions: Vec<FunctionInfo> = self
             .fn_items_infos
             .iter()
             .map(|s| metadata_fn_struct(&s.attr_signature_info))
             .collect();
-        Ok(quote! {
-                    #(#methods),*
-                    #(#functions),*
-        })
+        methods.extend(functions);
+        Ok(methods)
     }
 }
 
@@ -167,6 +164,9 @@ mod tests {
                 near_sdk::env::value_return(&data);
             }
         );
-        assert_eq!(expected.to_string(), actual.to_string());
+        assert_eq!(expected.to_string(), 
+        quote! {
+            #(#actual),*
+        }.to_string());
     }
 }

@@ -15,8 +15,15 @@ impl ImplItemMethodInfo {
     /// Process the method and extract information important for near-sdk.
     pub fn new(original: &mut ImplItemMethod, struct_type: Type) -> syn::Result<Self> {
         let ImplItemMethod { attrs, sig, .. } = original;
+        // TODO:
+        // let mut functions_called = vec![];
+        // statements_parser::parse_statements(&block.stmts, &mut functions_called);
         let attr_signature_info = AttrSigInfo::new(attrs, sig)?;
         let is_public = matches!(original.vis, Visibility::Public(_));
-        Ok(Self { attr_signature_info, is_public, struct_type })
+        Ok(Self {
+            attr_signature_info,
+            is_public,
+            struct_type,
+        })
     }
 }

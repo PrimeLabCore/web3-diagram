@@ -32,6 +32,11 @@ impl ItemImplInfo {
                 methods.push(method_info);
             }
         }
-        Ok(Self { is_trait_impl, has_near_sdk_attr, ty, methods})
+        Ok(Self {
+            is_trait_impl,
+            has_near_sdk_attr,
+            ty,
+            methods,
+        })
     }
 }

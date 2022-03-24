@@ -37,7 +37,7 @@ impl ImplItemMethodInfo {
     /// }
     /// ```
     /// If args are serialized with Borsh it will not include `#[derive(borsh::BorshSchema)]`.
-    pub fn metadata_struct(&self, is_trait_impl: bool, has_near_sdk_attr: bool) -> TokenStream2 {
+    pub fn metadata_struct(&self, is_trait_impl: bool, has_near_sdk_attr: bool) -> FunctionInfo {
         let method_name_str = self.attr_signature_info.ident.to_string();
 
         let is_event = type_is_event(&self.struct_type);
@@ -47,15 +47,13 @@ impl ImplItemMethodInfo {
                 is_out_of_contract_scope: true,
                 ..Default::default()
             };
-            return quote! {
-                #function_info
-            };
+            return function_info;
         }
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
         let is_public = self.is_public || (is_trait_impl && has_near_sdk_attr);
         let is_payable = self.attr_signature_info.is_payable;
         let is_private_cccalls = self.attr_signature_info.is_private;
-        let mut is_process=false;
+        let mut is_process = false;
         let is_init = matches!(
             &self.attr_signature_info.method_type,
             &MethodType::Init | &MethodType::InitIgnoreState
@@ -91,7 +89,7 @@ impl ImplItemMethodInfo {
                  None
             }
         };
-        let callbacks: Vec<_> = self
+        let _callbacks: Vec<_> = self
             .attr_signature_info
             .args
             .iter()
@@ -103,7 +101,7 @@ impl ImplItemMethodInfo {
                 }
             })
             .collect();
-        let callbacks_vec = match self
+        let _callbacks_vec = match self
             .attr_signature_info
             .args
             .iter()
@@ -122,9 +120,9 @@ impl ImplItemMethodInfo {
                 }
             }
         };
-        let result = match &self.attr_signature_info.returns {
+        let _result = match &self.attr_signature_info.returns {
             ReturnType::Default => {
-                is_process=true;
+                is_process = true;
                 quote! {
                     None
                 }
@@ -135,8 +133,8 @@ impl ImplItemMethodInfo {
                 }
             }
         };
-        
-        let function_info = FunctionInfo{
+
+        FunctionInfo {
             name: method_name_str,
             is_public,
             is_trait_impl,
@@ -148,22 +146,17 @@ impl ImplItemMethodInfo {
             is_private_cccalls,
             is_out_of_contract_scope: false,
             is_event,
-        };
-        quote! {
-            #function_info
         }
     }
 }
 
-pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> TokenStream2 {
+pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> FunctionInfo {
     let method_name_str = sig_info.ident.to_string();
-    let function_info = FunctionInfo {
+
+    FunctionInfo {
         name: method_name_str,
         is_process: true,
         is_out_of_contract_scope: true,
         ..Default::default()
-    };
-    quote! {
-        #function_info
     }
 }

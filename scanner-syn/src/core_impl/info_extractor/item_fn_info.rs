@@ -8,6 +8,7 @@ pub struct ItemFnInfo {
 }
 
 impl ItemFnInfo {
+    /// Process the function and extract important information.
     pub fn new(original: &mut ItemFn) -> syn::Result<Self> {
         let x = AttrSigInfo::new(&mut original.attrs, &mut original.sig)?;
         Ok(Self {
