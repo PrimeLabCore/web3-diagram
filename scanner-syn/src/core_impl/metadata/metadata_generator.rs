@@ -9,39 +9,11 @@ use quote::quote;
 use syn::ReturnType;
 
 impl ImplItemMethodInfo {
-    /// Generates metadata struct for this method.
-    ///
-    /// # Example:
-    /// The following method:
-    /// ```ignore
-    /// fn f3(&mut self, arg0: FancyStruct, arg1: u64) -> Result<IsOk, Error> { }
-    /// ```
-    /// will produce this struct:
-    /// ```ignore
-    /// near_sdk::MethodMetadata {
-    ///     name: "f3".to_string(),
-    ///     is_view: false,
-    ///     is_init: false,
-    ///     args: {
-    ///         #[derive(borsh::BorshSchema)]
-    ///         #[derive(serde :: Deserialize, serde :: Serialize)]
-    ///         struct Input {
-    ///             arg0: FancyStruct,
-    ///             arg1: u64,
-    ///         }
-    ///         Some(Input::schema_container())
-    ///     },
-    ///     callbacks: vec![],
-    ///     callbacks_vec: None,
-    ///     result: Some(Result < IsOk, Error > ::schema_container())
-    /// }
-    /// ```
-    /// If args are serialized with Borsh it will not include `#[derive(borsh::BorshSchema)]`.
-    pub fn metadata_struct(&self, is_trait_impl: bool, has_near_sdk_attr: bool) -> FunctionInfo {
+    pub fn metadata_struct(&self) -> FunctionInfo {
         let method_name_str = self.attr_signature_info.ident.to_string();
 
         let is_event = type_is_event(&self.struct_type);
-        if !is_event && !has_near_sdk_attr {
+        if !is_event && !self.has_near_sdk_attr {
             let function_info = FunctionInfo {
                 name: method_name_str,
                 is_out_of_contract_scope: true,
@@ -50,7 +22,7 @@ impl ImplItemMethodInfo {
             return function_info;
         }
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
-        let is_public = self.is_public || (is_trait_impl && has_near_sdk_attr);
+        let is_public = self.is_public || (self.is_trait_impl && self.has_near_sdk_attr);
         let is_payable = self.attr_signature_info.is_payable;
         let is_private_cccalls = self.attr_signature_info.is_private;
         let mut is_process = false;
@@ -137,7 +109,7 @@ impl ImplItemMethodInfo {
         FunctionInfo {
             name: method_name_str,
             is_public,
-            is_trait_impl,
+            is_trait_impl: self.is_trait_impl,
             is_init,
             is_payable,
             is_view,
@@ -155,7 +127,7 @@ pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> FunctionInfo {
 
     FunctionInfo {
         name: method_name_str,
-        is_process: true,
+        is_process: matches!(sig_info.returns, ReturnType::Default),
         is_out_of_contract_scope: true,
         ..Default::default()
     }

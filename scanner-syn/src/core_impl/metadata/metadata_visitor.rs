@@ -61,11 +61,8 @@ impl MetadataVisitor {
         let mut methods: Vec<FunctionInfo> = self
             .impl_item_infos
             .iter()
-            .flat_map(|i| {
-                (i.methods)
-                    .iter()
-                    .map(move |m| m.metadata_struct(i.is_trait_impl, i.has_near_sdk_attr))
-            })
+            .flat_map(|i| &i.methods)
+            .map(|m| m.metadata_struct())
             .collect();
         let functions: Vec<FunctionInfo> = self
             .fn_items_infos
