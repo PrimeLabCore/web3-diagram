@@ -7,7 +7,7 @@ use crate::{ItemFnInfo, ItemImplInfo};
 
 use quote::ToTokens;
 use syn::visit::Visit;
-use syn::{Error, ItemFn, ItemImpl};
+use syn::{Error, ExprCall, ItemFn, ItemImpl};
 
 use super::metadata_generator::metadata_fn_struct;
 
@@ -21,18 +21,21 @@ pub struct MetadataVisitor {
 }
 
 impl<'ast> Visit<'ast> for MetadataVisitor {
+    /// A method that will visit every impl block in a file.
+    /// It's getting called by the syn crate with filled arguments.
+    ///
+    /// # Arguments
+    ///
+    /// * `i`: The impl block tree.
+    ///
+    /// In result this method will add information about this method
+    /// or add the errors that occurred while extracting the data.
     fn visit_item_impl(&mut self, i: &'ast ItemImpl) {
         // Marking impl blocks with `near_bindgen`
         let has_near_sdk_attr = i
             .attrs
             .iter()
             .any(|attr| attr.path.to_token_stream().to_string().as_str() == "near_bindgen");
-        // if has_near_sdk_attr {
-        //     match ItemImplInfo::new(&mut i.clone()) {
-        //         Ok(info) => self.impl_item_infos.push(info),
-        //         Err(err) => self.errors.push(err),
-        //     }
-        // }
         match ItemImplInfo::new(&mut i.clone(), has_near_sdk_attr) {
             Ok(info) => self.impl_item_infos.push(info),
             Err(err) => self.errors.push(err),
@@ -40,6 +43,15 @@ impl<'ast> Visit<'ast> for MetadataVisitor {
         syn::visit::visit_item_impl(self, i);
     }
 
+    /// A method that will visit every function in a file.
+    /// It's getting called by the syn crate with filled arguments.
+    ///
+    /// # Arguments
+    ///
+    /// * `i`: The function tree.
+    ///
+    /// In result this method will add information about this function
+    /// or add the errors that occurred while extracting the data.
     fn visit_item_fn(&mut self, i: &'ast ItemFn) {
         match ItemFnInfo::new(&mut i.clone()) {
             Ok(info) => self.fn_items_infos.push(info),
@@ -47,6 +59,10 @@ impl<'ast> Visit<'ast> for MetadataVisitor {
         }
         syn::visit::visit_item_fn(self, i);
     }
+
+    // TODO: find a way to not parse all(59) ways we can call a function
+    // fn visit_expr_call(&mut self, i: &'ast ExprCall) {
+    // }
 }
 
 impl MetadataVisitor {
@@ -54,6 +70,11 @@ impl MetadataVisitor {
         Default::default()
     }
 
+    /// A method that uses extracted information about current project.
+    ///
+    /// # Returns
+    ///
+    /// * The information about every method/function in this file
     pub fn generate_metadata_method(&self) -> syn::Result<Vec<FunctionInfo>> {
         if !self.errors.is_empty() {
             return Err(self.errors[0].clone());

@@ -9,15 +9,11 @@ use quote::quote;
 use syn::ReturnType;
 
 impl ImplItemMethodInfo {
-    /// A public method that creates `FunctionInfo` from `ImplItemMethodInfo`.
-    ///
-    /// # Arguments
-    ///
-    /// * `self`(ImplItemMethodInfo): The info about current method.
+    /// A public method that creates info about the method.
     ///
     /// # Returns
     ///
-    /// * The `FunctionInfo`.
+    /// * The struct that contains information about the method.
     pub fn metadata_struct(&self) -> FunctionInfo {
         let method_name_str = self.attr_signature_info.ident.to_string();
 
@@ -131,7 +127,7 @@ impl ImplItemMethodInfo {
     }
 }
 
-/// A public function that creates `FunctionInfo` from function out of contract scope.
+/// A public function that creates info about the function.
 ///
 /// # Arguments
 ///
@@ -139,7 +135,7 @@ impl ImplItemMethodInfo {
 ///
 /// # Returns
 ///
-/// * The `FunctionInfo`.
+/// * The `FunctionInfo` struct that contains information about the function.
 pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> FunctionInfo {
     let method_name_str = sig_info.ident.to_string();
 
