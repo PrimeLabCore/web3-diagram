@@ -2,12 +2,15 @@
 //! it decorates. Note, that this in an inner attribute. For it to work we should be
 //! able to visit every method in the module intended to be a contract method.
 //! For this we implement the visitor.
+use std::collections::HashMap;
+
 use crate::contract_descriptor::FunctionInfo;
 use crate::{ItemFnInfo, ItemImplInfo};
 
-use quote::ToTokens;
+use proc_macro2::TokenStream;
+use quote::{quote, ToTokens};
 use syn::visit::Visit;
-use syn::{Error, ExprCall, ItemFn, ItemImpl};
+use syn::{Error, Expr, ExprCall, ExprMethodCall, Ident, ImplItemMethod, ItemFn, ItemImpl};
 
 use super::metadata_generator::metadata_fn_struct;
 
@@ -17,6 +20,7 @@ pub struct MetadataVisitor {
     impl_item_infos: Vec<ItemImplInfo>,
     fn_items_infos: Vec<ItemFnInfo>,
     /// Errors that occurred while extracting the data.
+    connections: Vec<(TokenStream, Vec<TokenStream>)>,
     errors: Vec<Error>,
 }
 
@@ -57,12 +61,29 @@ impl<'ast> Visit<'ast> for MetadataVisitor {
             Ok(info) => self.fn_items_infos.push(info),
             Err(err) => self.errors.push(err),
         }
+        self.connections
+            .push((i.sig.ident.to_token_stream(), vec![]));
         syn::visit::visit_item_fn(self, i);
     }
 
+    fn visit_impl_item_method(&mut self, i: &'ast ImplItemMethod) {
+        self.connections
+            .push((i.sig.ident.to_token_stream(), vec![]));
+        syn::visit::visit_impl_item_method(self, i);
+    }
+
     // TODO: find a way to not parse all(59) ways we can call a function
-    // fn visit_expr_call(&mut self, i: &'ast ExprCall) {
-    // }
+    fn visit_expr_call(&mut self, i: &'ast ExprCall) {
+        let (_name, functions) = self.connections.last_mut().expect("Not stable way");
+        functions.push(i.func.to_token_stream());
+        syn::visit::visit_expr_call(self, i);
+    }
+
+    fn visit_expr_method_call(&mut self, i: &'ast ExprMethodCall) {
+        let (_name, functions) = self.connections.last_mut().expect("Not stable way");
+        functions.push(i.method.to_token_stream());
+        syn::visit::visit_expr_method_call(self, i);
+    }
 }
 
 impl MetadataVisitor {
@@ -92,6 +113,18 @@ impl MetadataVisitor {
             .collect();
         methods.extend(functions);
         Ok(methods)
+    }
+
+    pub fn get_connections(&self) -> Vec<TokenStream> {
+        self.connections
+            .iter()
+            .map(|(m, c)| {
+                quote! {
+                    name: #m,
+                    functions: #(#c),*
+                }
+            })
+            .collect()
     }
 }
 

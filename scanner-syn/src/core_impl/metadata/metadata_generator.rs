@@ -21,6 +21,7 @@ impl ImplItemMethodInfo {
         if !is_event && !self.has_near_sdk_attr {
             let function_info = FunctionInfo {
                 name: method_name_str,
+                is_process: matches!(self.attr_signature_info.returns, ReturnType::Default),
                 is_out_of_contract_scope: true,
                 ..Default::default()
             };
