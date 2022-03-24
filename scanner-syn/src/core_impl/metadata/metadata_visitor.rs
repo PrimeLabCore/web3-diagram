@@ -120,8 +120,10 @@ impl MetadataVisitor {
             .iter()
             .map(|(m, c)| {
                 quote! {
-                    name: #m,
-                    functions: #(#c),*
+                    FunctionConnections {
+                        name: #m,
+                        functions: #(#c),*
+                    }
                 }
             })
             .collect()
