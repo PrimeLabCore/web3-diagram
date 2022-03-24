@@ -142,7 +142,7 @@ impl ContractDescriptor for DefaultContractDescriptor {
                 println!("\n{:?}", functions_info);
                 contract_functions.extend(functions_info);
                 println!(
-                    "{}",
+                    "\n{}",
                     quote! {
                         #(#connections_info);*
                     }
