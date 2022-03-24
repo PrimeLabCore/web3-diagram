@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 clap = { version = "3.1.6", features = ["derive"] }
 subprocess = "0.2.8"
+
+scanner-syn = { path = "../scanner-syn" }

@@ -204,6 +204,7 @@ name = "cargo-diagram"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "scanner-syn",
  "subprocess",
 ]
 

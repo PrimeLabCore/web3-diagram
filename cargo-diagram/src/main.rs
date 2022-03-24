@@ -1,7 +1,19 @@
+use scanner_syn;
+use scanner_syn::contract_descriptor::{DefaultContractDescriptor, ContractDescriptor};
+
 use clap::{Command, Arg};
 use subprocess::{Popen, PopenConfig};
 
+fn something() {
+    5;
+}
+
 fn main() -> Result<(), subprocess::PopenError> {
+    let descriptor = DefaultContractDescriptor::new();
+    let info = descriptor.get_contract_info_for_crate();
+    println!("{}", info.functions.len());
+    println!("{:#?}", info.functions[0].name);
+    println!("{:#?}", info.functions[1].name);
     let matches = Command::new("cargo-diagram")
         .arg(Arg::new("path")
             .short('p')
