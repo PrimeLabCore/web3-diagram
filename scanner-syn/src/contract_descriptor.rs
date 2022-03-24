@@ -33,6 +33,8 @@ pub struct FunctionInfo {
     pub is_out_of_contract_scope: bool,
     /// Whether method is part of `NearEvent` trait
     pub is_event: bool,
+    ///functions are being called by this function
+    pub inner_calls:Option<Vec<FunctionInfo>>,
 }
 ///Contract information from the code scanned by ContractDescriptor
 pub struct ContractInfo {
@@ -86,8 +88,9 @@ impl ToTokens for FunctionInfo {
         self.to_token_stream()
     }
 }
-///Trait Near smart contracts descriptor
+///Trait near smart contracts descriptor
 pub trait ContractDescriptor {
+    ///Gets the contract information inside the current crate
     fn get_contract_info_for_crate(&self) -> ContractInfo;
     fn get_tokens_from_file_path(&self, file_path: &Path) -> MetadataInfo;
     fn get_tokens_from_source(&self, src: String) -> MetadataInfo;
@@ -98,8 +101,10 @@ pub struct MetadataInfo {
     connections_info: Vec<TokenStream>,
 }
 
+///Default Near contract descriptor
 pub struct DefaultContractDescriptor;
 
+///Implementation of Near contract descriptor
 impl DefaultContractDescriptor {
     pub fn new() -> Self {
         Self {}
@@ -132,6 +137,7 @@ impl DefaultContractDescriptor {
     }
 }
 
+///Implement contract descriptor trait for DefaultContractDescriptor
 impl ContractDescriptor for DefaultContractDescriptor {
     fn get_contract_info_for_crate(&self) -> ContractInfo {
         let mut contract_functions = vec![];

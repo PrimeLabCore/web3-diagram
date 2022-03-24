@@ -124,6 +124,7 @@ impl ImplItemMethodInfo {
             is_private_cccalls,
             is_out_of_contract_scope: false,
             is_event,
+            inner_calls:None,
         }
     }
 }
