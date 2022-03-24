@@ -92,8 +92,8 @@ impl ToTokens for FunctionInfo {
 pub trait ContractDescriptor {
     ///Gets the contract information inside the current crate
     fn get_contract_info_for_crate(&self) -> ContractInfo;
-    fn get_tokens_from_file_path(&self, file_path: &Path) -> MetadataInfo;
-    fn get_tokens_from_source(&self, src: String) -> MetadataInfo;
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> Vec<FunctionInfo>;
+    fn get_tokens_from_source(&self, src: String) -> Vec<FunctionInfo>;
 }
 
 pub struct MetadataInfo {
@@ -109,17 +109,23 @@ impl DefaultContractDescriptor {
     pub fn new() -> Self {
         Self {}
     }
-    fn metadata(&self, item: proc_macro2::TokenStream) -> syn::Result<MetadataInfo> {
+    fn metadata(&self, item: proc_macro2::TokenStream) -> syn::Result<Vec<FunctionInfo>> {
         if let Ok(input) = syn::parse2::<syn::File>(item) {
             let mut visitor = MetadataVisitor::new();
             visitor.visit_file(&input);
             let connections_info = visitor.get_connections();
-            visitor
+            let result=visitor
                 .generate_metadata_method()
-                .map(|functions_info| MetadataInfo {
-                    functions_info,
-                    connections_info,
+                .unwrap()
+                .into_iter()
+                .map(| f_info|FunctionInfo{
+                    inner_calls:None,
+                    ..f_info
                 })
+                .collect::<Vec<_>>()
+                ;
+                
+                syn::Result::Ok(result)
         //     let generated = match visitor.generate_metadata_method() {
         //         Ok(x) => x,
         //         Err(err) => return err.to_compile_error(),
@@ -145,18 +151,10 @@ impl ContractDescriptor for DefaultContractDescriptor {
         for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
             if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
                 println!("\n{}", entry.path().display());
-                let MetadataInfo {
-                    functions_info,
-                    connections_info,
-                } = self.get_tokens_from_file_path(entry.path());
-                println!("\n{:?}", functions_info);
-                contract_functions.extend(functions_info);
-                println!(
-                    "\n{}",
-                    quote! {
-                        #(#connections_info);*
-                    }
-                )
+                let functions = self.get_tokens_from_file_path(entry.path());
+                println!("\n{:?}", functions);
+                contract_functions.extend(functions);
+                
             }
         }
         ContractInfo {
@@ -164,14 +162,14 @@ impl ContractDescriptor for DefaultContractDescriptor {
         }
     }
 
-    fn get_tokens_from_file_path(&self, file_path: &Path) -> MetadataInfo {
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> Vec<FunctionInfo> {
         let mut file = File::open(file_path).expect("Unable to open file");
         let mut src = String::new();
         file.read_to_string(&mut src).expect("Unable to read file");
         self.get_tokens_from_source(src)
     }
 
-    fn get_tokens_from_source(&self, src: String) -> MetadataInfo {
+    fn get_tokens_from_source(&self, src: String) -> Vec<FunctionInfo> {
         let syntax = syn::parse_file(&src).expect("Unable to parse file");
         self.metadata(syntax.to_token_stream()).unwrap()
     }
