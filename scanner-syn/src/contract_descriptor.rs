@@ -1,16 +1,19 @@
 use proc_macro2::Span;
+use std::io::Read;
 use std::{fs::File, path::Path};
 
 use crate::core_impl::*;
 use proc_macro2::TokenStream;
-use quote::{quote, TokenStreamExt};
+use quote::quote;
 use syn::__private::ToTokens;
 use syn::visit::Visit;
+use walkdir::WalkDir;
 
-#[derive(Default)]
+///Function information from the code scanned by ContractDescriptor
+#[derive(Default, Debug)]
 pub struct FunctionInfo {
     pub name: String,
-    /// Whether method marked with `pub`
+    /// Whether method is exported
     pub is_public: bool,
     /// Whether this is a trait implementation.
     pub is_trait_impl: bool,
@@ -22,6 +25,7 @@ pub struct FunctionInfo {
     pub is_view: bool,
     /// Whether method can modify the state.
     pub is_mutable: bool,
+    /// Whether method doesn't return a value.
     pub is_process: bool,
     /// Whether method can accept calls from self (current account)
     pub is_private_cccalls: bool,
@@ -30,11 +34,14 @@ pub struct FunctionInfo {
     /// Whether method is part of `NearEvent` trait
     pub is_event: bool,
 }
+///Contract information from the code scanned by ContractDescriptor
 pub struct ContractInfo {
     pub functions: Vec<FunctionInfo>,
 }
 
+///Trait for converting tokenstream to extended one
 impl ToTokens for FunctionInfo {
+    ///Function extends TokenStream with FunctionInfo
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let name: &str = &self.name;
         let is_public: bool = self.is_public;
@@ -64,12 +71,14 @@ impl ToTokens for FunctionInfo {
         });
     }
 
+    ///Converts to TokenStream
     fn to_token_stream(&self) -> TokenStream {
         let mut tokens = TokenStream::new();
         self.to_tokens(&mut tokens);
         tokens
     }
 
+    ///gets the token stream
     fn into_token_stream(self) -> TokenStream
     where
         Self: Sized,
@@ -77,55 +86,87 @@ impl ToTokens for FunctionInfo {
         self.to_token_stream()
     }
 }
-
+///Trait Near smart contracts descriptor
 pub trait ContractDescriptor {
-    fn get_contract_info_for_crate(&mut self) -> ContractInfo;
-    fn get_contract_info_from_file(&mut self, file_path: File) -> ContractInfo;
-    fn get_contract_info_from_file_path(&mut self, file_path: &Path) -> ContractInfo;
-    fn get_contract_info_from_source(&mut self, src: String) -> ContractInfo;
+    fn get_contract_info_for_crate(&self) -> ContractInfo;
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> MetadataInfo;
+    fn get_tokens_from_source(&self, src: String) -> MetadataInfo;
+}
+
+pub struct MetadataInfo {
+    functions_info: Vec<FunctionInfo>,
+    connections_info: Vec<TokenStream>,
 }
 
 pub struct DefaultContractDescriptor;
 
 impl DefaultContractDescriptor {
-    fn metadata(&mut self, item: proc_macro2::TokenStream) -> TokenStream {
+    pub fn new() -> Self {
+        Self {}
+    }
+    fn metadata(&self, item: proc_macro2::TokenStream) -> syn::Result<MetadataInfo> {
         if let Ok(input) = syn::parse2::<syn::File>(item) {
             let mut visitor = MetadataVisitor::new();
             visitor.visit_file(&input);
-            let generated = match visitor.generate_metadata_method() {
-                Ok(x) => x,
-                Err(err) => return err.to_compile_error(),
-            };
-            quote! {
-                //#input
-                #generated
-            }
+            let connections_info = visitor.get_connections();
+            visitor
+                .generate_metadata_method()
+                .map(|functions_info| MetadataInfo {
+                    functions_info,
+                    connections_info,
+                })
+        //     let generated = match visitor.generate_metadata_method() {
+        //         Ok(x) => x,
+        //         Err(err) => return err.to_compile_error(),
+        //     };
+        //     quote! {
+        //         //#input
+        //         #generated
+        //     }
         } else {
-            syn::Error::new(
+            syn::__private::Err(syn::Error::new(
                 Span::call_site(),
                 "Failed to parse code decorated with `metadata!{}` macro. Only valid Rust is supported.",
-            )
-            .to_compile_error()
+            ))
         }
     }
 }
 
 impl ContractDescriptor for DefaultContractDescriptor {
-    fn get_contract_info_for_crate(&mut self) -> ContractInfo {
-        todo!();
+    fn get_contract_info_for_crate(&self) -> ContractInfo {
+        let mut contract_functions = vec![];
+        // Walk into every dir to find every `rs` file
+        for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
+            if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
+                println!("\n{}", entry.path().display());
+                let MetadataInfo {
+                    functions_info,
+                    connections_info,
+                } = self.get_tokens_from_file_path(entry.path());
+                println!("\n{:?}", functions_info);
+                contract_functions.extend(functions_info);
+                println!(
+                    "\n{}",
+                    quote! {
+                        #(#connections_info);*
+                    }
+                )
+            }
+        }
+        ContractInfo {
+            functions: contract_functions,
+        }
     }
 
-    fn get_contract_info_from_file(&mut self, file: File) -> ContractInfo {
-        todo!()
+    fn get_tokens_from_file_path(&self, file_path: &Path) -> MetadataInfo {
+        let mut file = File::open(file_path).expect("Unable to open file");
+        let mut src = String::new();
+        file.read_to_string(&mut src).expect("Unable to read file");
+        self.get_tokens_from_source(src)
     }
 
-    fn get_contract_info_from_file_path(&mut self, file_path: &Path) -> ContractInfo {
-        todo!()
-    }
-
-    fn get_contract_info_from_source(&mut self, src: String) -> ContractInfo {
+    fn get_tokens_from_source(&self, src: String) -> MetadataInfo {
         let syntax = syn::parse_file(&src).expect("Unable to parse file");
-        let tokens = self.metadata(syntax.to_token_stream());
-        todo!()
+        self.metadata(syntax.to_token_stream()).unwrap()
     }
 }
