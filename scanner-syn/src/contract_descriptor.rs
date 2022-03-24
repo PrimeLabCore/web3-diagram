@@ -9,6 +9,7 @@ use syn::__private::ToTokens;
 use syn::visit::Visit;
 use walkdir::WalkDir;
 
+///Function information from the code scanned by ContractDescriptor
 #[derive(Default, Debug)]
 pub struct FunctionInfo {
     pub name: String,
@@ -33,11 +34,14 @@ pub struct FunctionInfo {
     /// Whether method is part of `NearEvent` trait
     pub is_event: bool,
 }
+///Contract information from the code scanned by ContractDescriptor
 pub struct ContractInfo {
     pub functions: Vec<FunctionInfo>,
 }
 
+///Trait for converting tokenstream to extended one
 impl ToTokens for FunctionInfo {
+    ///Function extends TokenStream with FunctionInfo
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let name: &str = &self.name;
         let is_public: bool = self.is_public;
