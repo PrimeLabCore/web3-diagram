@@ -1,5 +1,5 @@
 use clap::{Command, Arg};
-use subprocess::{Popen, PopenConfig, Redirection};
+use subprocess::{Popen, PopenConfig};
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -12,34 +12,39 @@ fn main() -> Result<(), subprocess::PopenError> {
         .arg(Arg::new("output")
             .short('o')
             .long("output")
-            .required(true)
-            .takes_value(true)
-            .help("Name of the output file"))
-        .arg(Arg::new("resolution")
-            .short('r')
-            .long("resolution")
             .required(false)
             .takes_value(true)
-            .help("Resolution of the output file"))
-        .arg(Arg::new("format")
-            .short('f')
-            .long("format")
+            .help("Output file. It should be either md, svg, png or pdf. Optional. Default: input + \".svg\""))
+        .arg(Arg::new("height")
+            .short('H')
+            .long("height")
             .required(false)
             .takes_value(true)
-            .help("Format of the output, should be md, svg, png or pdf"))
+            .help("Height of the page. Optional. Default: 600"))
+        .arg(Arg::new("width")
+            .short('w')
+            .long("width")
+            .required(false)
+            .takes_value(true)
+            .help("Width of the page. Optional. Default: 800"))
         .get_matches();
-    
-    /*println!("{}\n{}\n{}\n{}", 
-        matches.value_of("output").unwrap(), 
-        matches.value_of("path").unwrap(),
-        matches.value_of("resolution").unwrap_or("NO_RESOLUTION"),
-        matches.value_of("format").unwrap_or("NO_FORMAT"),
-    );*/
 
     let input_file = matches.value_of("path").unwrap();
-    let output_file = matches.value_of("output").unwrap();
+    let mut command = vec!["mmdc", "-i", input_file];
 
-    let mut mmdc = Popen::create(&["mmdc", "-i", input_file, "-o", output_file], PopenConfig::default())?;
+    if let Some(output_file) = matches.value_of("output") {
+        command.push("-o");
+        command.push(output_file);
+    };
+    if let Some(height) = matches.value_of("height") {
+        command.push("-H");
+        command.push(height);
+    };
+    if let Some(width) = matches.value_of("width") {
+        command.push("-w");
+        command.push(width);
+    };
+    let mut mmdc = Popen::create(&command, PopenConfig::default())?;
         // stdout: Redirection::File(std::io::stdout()),
         // stderr: Redirection::File(std::io::stderr()),
     mmdc.wait();
