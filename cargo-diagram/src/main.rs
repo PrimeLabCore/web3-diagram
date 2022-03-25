@@ -35,6 +35,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .required(false)
             .takes_value(true)
             .requires("input")
+            .conflicts_with("output")
             .help("Format of the output file. Can be used if the output is not provided. 
             Output name will be name_of_the_input_file and it will be placed at ./res folder. Options"))
         .arg(Arg::new("height")
