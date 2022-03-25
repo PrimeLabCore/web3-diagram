@@ -4,7 +4,7 @@ use scanner_syn::contract_descriptor::{DefaultContractDescriptor, ContractDescri
 use clap::{Command, Arg};
 use subprocess::{Popen, PopenConfig};
 
-use std::env;
+use std::{env, fs};
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -57,9 +57,21 @@ fn main() -> Result<(), subprocess::PopenError> {
 
     let input_file = matches.value_of("input").unwrap();
     let mut command = vec!["mmdc", "-i", input_file];
+    let mut path_output: String;
     if let Some(output_file) = matches.value_of("output") {
         command.push("-o");
         command.push(output_file);
+    } else {
+        command.push("-o");
+        let mut path = env::current_dir()?;
+        path.push("res/");
+        if !path.is_dir() {
+            fs::create_dir(&path);
+        };
+        path.push("output.svg");
+        println!("{}", path.as_path().display());
+        path_output = path.as_path().to_str().unwrap().to_string();
+        command.push(path_output.as_str());
     };
     if let Some(height) = matches.value_of("height") {
         println!("Set the height: {}", height);
