@@ -29,6 +29,14 @@ fn main() -> Result<(), subprocess::PopenError> {
             .requires("input")
             .help("Output file. It should be either md, svg, png or pdf. Optional.
                 Default: \"./res/name_of_the_input_file.svg\""))
+        .arg(Arg::new("format")
+            .short('f')
+            .long("format")
+            .required(false)
+            .takes_value(true)
+            .requires("input")
+            .help("Format of the output file. Can be used if the output is not provided. 
+            Output name will be name_of_the_input_file and it will be placed at ./res folder. Options"))
         .arg(Arg::new("height")
             .short('H')
             .long("height")
@@ -79,9 +87,11 @@ fn main() -> Result<(), subprocess::PopenError> {
             "md" => input_vec[1].to_owned(),
             _ => input_vec[0].to_owned(),
         };
-        let output_extension = ".svg";
-        let path_output = output_name + output_extension;
-        //path.push(path_output);
+        let output_extension = match matches.value_of("format") {
+            Some(extension) => ".".to_owned() + extension,
+            _ => ".svg".to_string(),
+        };
+        let path_output = output_name + &output_extension;
         full_path = (path.to_str().unwrap().to_owned() + &path_output).to_string();
         command.push(&full_path.as_str());
     };
