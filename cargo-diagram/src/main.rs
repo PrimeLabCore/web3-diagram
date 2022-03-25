@@ -5,6 +5,7 @@ use clap::{Command, Arg};
 use subprocess::{Popen, PopenConfig};
 
 use std::{env, fs};
+use std::path::Path;
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -26,7 +27,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .required(false)
             .takes_value(true)
             .requires("input")
-            .help("Output file. It should be either md, svg, png or pdf. Optional. Default: input + \".svg\""))
+            .help("Output file. It should be either md, svg, png or pdf. Optional. Default: \"./res/output.svg\""))
         .arg(Arg::new("height")
             .short('H')
             .long("height")
@@ -41,6 +42,13 @@ fn main() -> Result<(), subprocess::PopenError> {
             .takes_value(true)
             .requires("input")
             .help("Width of the page. Optional. Default: 800"))
+        .arg(Arg::new("scale")
+            .short('s')
+            .long("scale")
+            .required(false)
+            .takes_value(true)
+            .requires("input")
+            .help("Puppeteer scale factor, default 1. Optional"))
         .get_matches();
 
     if let Some(path) = matches.value_of("path") {
@@ -60,6 +68,10 @@ fn main() -> Result<(), subprocess::PopenError> {
     let mut path_output: String;
     if let Some(output_file) = matches.value_of("output") {
         command.push("-o");
+        let path = Path::new(output_file);
+        /*if !path.is_dir() {
+            fs::create_dir(&path);
+        };*/
         command.push(output_file);
     } else {
         command.push("-o");
@@ -82,6 +94,11 @@ fn main() -> Result<(), subprocess::PopenError> {
         println!("Set the width: {}", width);
         command.push("-w");
         command.push(width);
+    };
+    if let Some(scale) = matches.value_of("scale") {
+        println!("Set the scale: {}", scale);
+        command.push("-s");
+        command.push(scale);
     };
     let mut mmdc = Popen::create(&command, PopenConfig::default())?;
         // stdout: Redirection::File(std::io::stdout()),
