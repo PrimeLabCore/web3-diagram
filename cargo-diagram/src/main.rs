@@ -4,7 +4,7 @@ use scanner_syn::contract_descriptor::{DefaultContractDescriptor, ContractDescri
 use clap::{Command, Arg};
 use subprocess::{Popen, PopenConfig};
 
-use std::{env, fs};
+use std::env;
 use std::path::Path;
 
 fn main() -> Result<(), subprocess::PopenError> {
@@ -27,7 +27,8 @@ fn main() -> Result<(), subprocess::PopenError> {
             .required(false)
             .takes_value(true)
             .requires("input")
-            .help("Output file. It should be either md, svg, png or pdf. Optional. Default: \"./res/output.svg\""))
+            .help("Output file. It should be either md, svg, png or pdf. Optional.
+                Default: \"./res/name_of_the_input_file.svg\""))
         .arg(Arg::new("height")
             .short('H')
             .long("height")
@@ -65,25 +66,24 @@ fn main() -> Result<(), subprocess::PopenError> {
 
     let input_file = matches.value_of("input").unwrap();
     let mut command = vec!["mmdc", "-i", input_file];
-    let mut path_output: String;
+    let mut full_path: String;
     if let Some(output_file) = matches.value_of("output") {
         command.push("-o");
-        let path = Path::new(output_file);
-        /*if !path.is_dir() {
-            fs::create_dir(&path);
-        };*/
         command.push(output_file);
     } else {
         command.push("-o");
         let mut path = env::current_dir()?;
         path.push("res/");
-        if !path.is_dir() {
-            fs::create_dir(&path);
+        let input_vec: Vec<&str> = input_file.rsplit_terminator(&['.', '/'][..]).collect();
+        let output_name = match input_vec[0] {
+            "md" => input_vec[1].to_owned(),
+            _ => input_vec[0].to_owned(),
         };
-        path.push("output.svg");
-        println!("{}", path.as_path().display());
-        path_output = path.as_path().to_str().unwrap().to_string();
-        command.push(path_output.as_str());
+        let output_extension = ".svg";
+        let path_output = output_name + output_extension;
+        //path.push(path_output);
+        full_path = (path.to_str().unwrap().to_owned() + &path_output).to_string();
+        command.push(&full_path.as_str());
     };
     if let Some(height) = matches.value_of("height") {
         println!("Set the height: {}", height);
