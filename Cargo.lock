@@ -319,6 +319,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "enum-as-inner"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21cdad81446a7f7dc43f6a77409efeb9733d2fa65553efef6018ef257c959b73"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "example"
 version = "0.1.0"
 dependencies = [
@@ -496,6 +508,7 @@ checksum = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3"
 name = "mermaid-markdown-api"
 version = "0.1.0"
 dependencies = [
+ "enum-as-inner",
  "strum",
  "strum_macros",
 ]
