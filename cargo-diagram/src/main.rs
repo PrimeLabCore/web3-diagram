@@ -1,11 +1,13 @@
 use scanner_syn;
+use minidom;
+
 use scanner_syn::contract_descriptor::{DefaultContractDescriptor, ContractDescriptor};
+use minidom::Element;
 
 use clap::{Command, Arg};
 use subprocess::{Popen, PopenConfig};
 
-use std::env;
-use std::path::Path;
+use std::{env, path::Path, fs::File, io::Read};
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -90,9 +92,10 @@ fn main() -> Result<(), subprocess::PopenError> {
 
     let input_file = matches.value_of("input").unwrap();
     let mut command = vec!["mmdc", "-i", input_file];
-    let mut full_path: String;
+    let mut full_output_path: String;
     if let Some(output_file) = matches.value_of("output") {
         command.push("-o");
+        full_output_path = output_file.clone().into();
         command.push(output_file);
     } else {
         command.push("-o");
@@ -103,15 +106,15 @@ fn main() -> Result<(), subprocess::PopenError> {
             "md" => input_vec[1].to_owned(),
             _ => input_vec[0].to_owned(),
         };
-        let output_extension = match matches.value_of("format") {
+        /*let output_extension = match matches.value_of("format") {
             Some(extension) => ".".to_owned() + extension,
             _ => ".svg".to_string(),
-        };
-        let path_output = output_name + &output_extension;
-        full_path = (path.to_str().unwrap().to_owned() + &path_output).to_string();
-        command.push(&full_path.as_str());
+        };*/
+        let path_output = output_name + &".svg";
+        full_output_path = (path.to_str().unwrap().to_owned() + &path_output).to_string();
+        command.push(&full_output_path.as_str());
     };
-    if let Some(height) = matches.value_of("height") {
+    /*if let Some(height) = matches.value_of("height") {
         if !is_quiet {
             println!("Set the height: {}", height);
         };
@@ -124,7 +127,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         };        
         command.push("-w");
         command.push(width);
-    };
+    };*/
     if let Some(scale) = matches.value_of("scale") {
         if !is_quiet {
             println!("Set the scale: {}", scale);
@@ -142,9 +145,18 @@ fn main() -> Result<(), subprocess::PopenError> {
     if is_quiet {
         command.push("-q");
     }
-    let mut mmdc = Popen::create(&command, PopenConfig::default())?;
 
+    let popen = PopenConfig::default();
+    popen.stdout = subprocess::Redirection::File(File{ inner: env::current_dir()?.display() });
+    let mut mmdc = Popen::create(&command, PopenConfig::default())?;
     mmdc.wait();
+
+    let height = matches.value_of("height").unwrap_or("600");
+    let width = matches.value_of("width").unwrap_or("800");
+    let mut file = File::open(full_output_path.clone())?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    let root: Element = contents.parse().unwrap();
 
     Ok(())
 }
