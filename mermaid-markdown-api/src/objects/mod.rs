@@ -1,4 +1,4 @@
-use crate::md_api::syntax::CoreSyntaxFunctions;
+use crate::syntax::CoreSyntaxFunctions;
 
 pub mod connection;
 pub mod node;

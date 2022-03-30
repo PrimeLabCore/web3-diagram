@@ -1,6 +1,6 @@
-use crate::md_api::objects::connection::{Connection, ConnectionType};
-use crate::md_api::objects::node::{ActionType, Node};
-use crate::md_api::syntax::{CoreSyntaxFunctions, FlowDirection, SyntaxConfigFile};
+use crate::objects::connection::{Connection, ConnectionType};
+use crate::objects::node::{ActionType, Node};
+use crate::syntax::{CoreSyntaxFunctions, FlowDirection, SyntaxConfigFile};
 use enum_as_inner::EnumAsInner;
 use strum::EnumProperty;
 use strum_macros::EnumProperty;
@@ -113,7 +113,8 @@ impl FlowChart {
         extra_length_num: Option<u8>,
     ) {
         // Push the main portion of the solid line flag
-        self.data.push_str(LineType::Solid.get_str("Main").unwrap());
+        self.data
+            .push_str(LineType::Solid.get_str("Complete").unwrap());
 
         // Check to see if an additional length was requested
         if let Some(extra_length_num) = extra_length_num {
@@ -199,6 +200,9 @@ impl CoreSyntaxFunctions for FlowChart {
     /// # Examples
     ///
     /// ```
+    /// use mermaid_markdown_api::syntax::flow_chart::FlowChart;
+    /// use mermaid_markdown_api::syntax::{CoreSyntaxFunctions, FlowDirection};
+    ///
     /// let mut flow_chart = FlowChart::new(FlowDirection::TD);
     /// ```
     fn new(direction: FlowDirection) -> Self {
@@ -217,36 +221,6 @@ impl CoreSyntaxFunctions for FlowChart {
         result
     }
 
-    /// Appends a linebreak & the preceding whitespace to the current data of the flow chart struct (i.e. `self.data`).
-    ///
-    /// # Arguments
-    ///
-    /// * `num_of_indents` - Optional number of indents to insert once the new line is added (default it 1)
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// let mut flow_chart = FlowChart::new(FlowDirection::TD);
-    ///
-    /// flow_chart.add_linebreak(None);
-    /// ```
-    fn add_linebreak(
-        &mut self,
-        num_of_indents: Option<u8>,
-    ) {
-        // Get the number of indents to use
-        let number_of_indents = num_of_indents.unwrap_or(1);
-
-        // Add the new line
-        self.data += "\n";
-
-        // Range over `number_of_indents` to add the appropriate number of tabs
-        for _ in 0..number_of_indents {
-            // Add in a tab
-            self.data += "\t";
-        }
-    }
-
     /// Creates a [Mermaid.js Node](https://mermaid-js.github.io/mermaid/#/flowchart?id=a-node-default) with the supplied attributes & appends it to the current data of the flow chart struct (i.e. `self.data`).
     ///
     /// # Arguments
@@ -259,6 +233,9 @@ impl CoreSyntaxFunctions for FlowChart {
     /// # Examples
     ///
     /// ```
+    /// use mermaid_markdown_api::syntax::flow_chart::{FlowChart, NodeConfig, Shape};
+    /// use mermaid_markdown_api::syntax::{CoreSyntaxFunctions, FlowDirection, SyntaxConfigFile};
+    ///
     /// let mut flow_chart = FlowChart::new(FlowDirection::TD);
     ///
     /// let node_config =  SyntaxConfigFile::FlowChart(ConfigFile::NodeConfig(NodeConfig {
@@ -301,47 +278,16 @@ impl CoreSyntaxFunctions for FlowChart {
         }
     }
 
-    fn build_node_config<'a>(
-        &self,
-        node: &'a Node,
-        id: Option<&'a str>,
-    ) -> SyntaxConfigFile<'a> {
-        SyntaxConfigFile::FlowChart(ObjectConfig::NodeConfig(NodeConfig {
-            id: id.unwrap(),
-            class: Some(node.scope.as_ref()),
-            shape: self.get_shape_from_node(&node),
-            inner_text: &node.name,
-        }))
-    }
-
-    fn build_connection_config<'a>(
-        &self,
-        connection: &'a Connection,
-        extra_length_num: Option<u8>,
-    ) -> SyntaxConfigFile<'a> {
-        let (line_type, arrow_type, arrow_direction) =
-            self.get_line_and_arrow_type_from_connection(connection);
-
-        SyntaxConfigFile::FlowChart(ObjectConfig::ConnectionConfig(ConnectionConfig {
-            line_type,
-            arrow_type,
-            arrow_direction,
-            extra_length_num,
-        }))
-    }
-
-    /// Creates a [Mermaid.js Connection](https://mermaid-js.github.io/mermaid/#/flowchart?id=links-between-nodes) with the supplied attributes & appends it to the current data of the flow chart struct (i.e. `self.data`).
+    /// Creates a [Mermaid.js Connection](https://mermaid-js.github.io/mermaid/#/flowchart?id=links-between-nodes) with the supplied [configuration](ConnectionConfig) & appends it to the current data of the flow chart struct (i.e. `self.data`).
     ///
     /// # Arguments
-    /// TODO:
-    /// * `line_type` - The enum representation of the type of line you want
-    /// * `arrow_type` - The enum representation of the type of arrow you want
-    /// * `arrow_direction` -  The enum representation of the direction you want the arrows to point
-    /// * `extra_length_num` - An optional amount of additional flags to increase line length
+    /// * `connection_config` - [ConnectionConfig]
     ///
     /// # Examples
     ///
     /// ```
+    /// use mermaid_markdown_api::syntax::flow_chart::{ArrowDirection, ArrowType, ConnectionConfig, FlowChart, LineType, NodeConfig, Shape};
+    /// use mermaid_markdown_api::syntax::{CoreSyntaxFunctions, FlowDirection, SyntaxConfigFile};
     /// let mut flow_chart = FlowChart::new(FlowDirection::TD);
     ///
     /// let node_config =  SyntaxConfigFile::FlowChart(ConfigFile::NodeConfig(NodeConfig {
@@ -353,9 +299,9 @@ impl CoreSyntaxFunctions for FlowChart {
     ///
     /// let connection_config = SyntaxConfigFile::FlowChart(ConfigFile::ConnectionConfig(ConnectionConfig {
     ///   line_type: LineType::Dashed,
-    /// 	arrow_type: ArrowType::Standard,
-    /// 	arrow_direction: ArrowDirection::Right,
-    /// 	extra_length_num: None,
+    ///   arrow_type: ArrowType::Standard,
+    ///   arrow_direction: ArrowDirection::Right,
+    ///   extra_length_num: None,
     /// }));
     ///
     /// flow_chart.add_node(node_config);
@@ -365,6 +311,7 @@ impl CoreSyntaxFunctions for FlowChart {
         &mut self,
         connection_config: SyntaxConfigFile,
     ) {
+        // Unwrap the `SyntaxConfigFile` into the needed `ConnectionConfig`
         let connection_config: ConnectionConfig = connection_config
             .into_flow_chart()
             .unwrap()
@@ -372,7 +319,7 @@ impl CoreSyntaxFunctions for FlowChart {
             .unwrap();
 
         // Push a preceding space
-        self.data.push_str(" ");
+        self.data.push(' ');
 
         // Depending on the arrow direction wanted make calls to `self.add_arrow` & `self.add_line`
         match connection_config.arrow_direction {
@@ -413,11 +360,104 @@ impl CoreSyntaxFunctions for FlowChart {
         }
 
         // Push a trailing space
-        self.data.push_str(" ");
+        self.data.push(' ');
     }
 
-    fn return_schema(self) -> String {
-        self.data
+    /// Appends a linebreak & the preceding whitespace to the current data of the flow chart struct (i.e. `self.data`).
+    ///
+    /// # Arguments
+    ///
+    /// * `num_of_indents` - Optional number of indents to insert once the new line is added (default it 1)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mermaid_markdown_api::syntax::flow_chart::FlowChart;
+    /// use mermaid_markdown_api::syntax::{CoreSyntaxFunctions, FlowDirection};
+    /// let mut flow_chart = FlowChart::new(FlowDirection::TD);
+    ///
+    /// flow_chart.add_linebreak(None);
+    /// ```
+    fn add_linebreak(
+        &mut self,
+        num_of_indents: Option<u8>,
+    ) {
+        // Get the number of indents to use
+        let number_of_indents = num_of_indents.unwrap_or(1);
+
+        // Add the new line
+        self.data += "\n";
+
+        // Range over `number_of_indents` to add the appropriate number of tabs
+        for _ in 0..number_of_indents {
+            // Add in a tab
+            self.data += "\t";
+        }
+    }
+
+    /// This method creates a [NodeConfig] referencing data from a supplied [Node].
+    ///
+    /// # Arguments
+    ///
+    /// * `node` - The [Node] that is going to determine the configuration
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use mermaid_markdown_api::objects::node::{ActionType, Node, ScopeType};
+    /// use mermaid_markdown_api::syntax::{CoreSyntaxFunctions, FlowDirection};
+    /// use mermaid_markdown_api::syntax::flow_chart::FlowChart;
+    /// let mut flow_chart = FlowChart::new(FlowDirection::TD);
+    ///
+    /// let hierarchy_tree_root = Node {
+    ///     name: "function_a".to_string(),
+    ///     scope: ScopeType::Public,
+    ///     action: ActionType::Mutation,
+    ///     connections: vec![],
+    /// };
+    ///
+    /// flow_chart.build_node_config
+    /// ```
+    fn build_node_config<'a>(
+        &self,
+        node: &'a Node,
+        id: Option<&'a str>,
+    ) -> SyntaxConfigFile<'a> {
+        if let Some(id) = id {
+            SyntaxConfigFile::FlowChart(ObjectConfig::NodeConfig(NodeConfig {
+                id,
+                class: Some(node.scope.as_ref()),
+                shape: self.get_shape_from_node(node),
+                inner_text: &node.name,
+            }))
+        } else {
+            SyntaxConfigFile::FlowChart(ObjectConfig::NodeConfig(NodeConfig {
+                id: &node.name,
+                class: Some(node.scope.as_ref()),
+                shape: self.get_shape_from_node(node),
+                inner_text: &node.name,
+            }))
+        }
+    }
+
+    fn build_connection_config<'a>(
+        &self,
+        connection: &'a Connection,
+        extra_length_num: Option<u8>,
+    ) -> SyntaxConfigFile<'a> {
+        let (line_type, arrow_type, arrow_direction) =
+            self.get_line_and_arrow_type_from_connection(connection);
+
+        SyntaxConfigFile::FlowChart(ObjectConfig::ConnectionConfig(ConnectionConfig {
+            line_type,
+            arrow_type,
+            arrow_direction,
+            extra_length_num,
+        }))
+    }
+
+    fn return_schema(&self) -> String {
+        self.data.clone()
     }
 }
 

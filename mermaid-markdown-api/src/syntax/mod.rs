@@ -1,6 +1,6 @@
-use crate::md_api::objects::connection::Connection;
-use crate::md_api::objects::node::Node;
-use crate::md_api::syntax::flow_chart::ObjectConfig;
+use crate::objects::connection::Connection;
+use crate::objects::node::Node;
+use crate::syntax::flow_chart::ObjectConfig;
 use enum_as_inner::EnumAsInner;
 
 pub mod flow_chart;
@@ -55,5 +55,5 @@ pub trait CoreSyntaxFunctions {
         extra_length_num: Option<u8>,
     ) -> SyntaxConfigFile<'a>;
 
-    fn return_schema(self) -> String;
+    fn return_schema(&self) -> String;
 }

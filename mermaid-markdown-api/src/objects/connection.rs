@@ -1,9 +1,6 @@
-use crate::md_api::objects::node::Node;
-use crate::md_api::objects::DiagramObject;
-use crate::md_api::syntax::flow_chart::{
-    ArrowDirection, ArrowType, ConnectionConfig, LineType, ObjectConfig,
-};
-use crate::md_api::syntax::{CoreSyntaxFunctions, SyntaxConfigFile};
+use crate::objects::node::Node;
+use crate::objects::DiagramObject;
+use crate::syntax::CoreSyntaxFunctions;
 
 pub enum ConnectionType {
     DirectConnection,
@@ -13,7 +10,7 @@ pub enum ConnectionType {
 
 pub struct Connection {
     pub(crate) connection_type: ConnectionType,
-    node: Node,
+    pub(crate) node: Node,
 }
 
 impl<T: CoreSyntaxFunctions> DiagramObject<T> for Connection {
