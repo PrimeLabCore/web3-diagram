@@ -99,11 +99,6 @@ pub trait ContractDescriptor {
     fn get_tokens_from_source(&self, src: String) -> Vec<FunctionInfo>;
 }
 
-pub struct MetadataInfo {
-    functions_info: Vec<FunctionInfo>,
-    connections_info: Vec<TokenStream>,
-}
-
 ///Default Near contract descriptor
 pub struct DefaultContractDescriptor;
 
@@ -201,7 +196,7 @@ impl ContractDescriptor for DefaultContractDescriptor {
                 contract_functions.extend(functions);
             }
         }
-        
+
         ContractInfo {
             functions: contract_functions,
         }
