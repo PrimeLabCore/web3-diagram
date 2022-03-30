@@ -9,8 +9,8 @@ pub enum ConnectionType {
 }
 
 pub struct Connection {
-    pub(crate) connection_type: ConnectionType,
-    pub(crate) node: Node,
+    pub connection_type: ConnectionType,
+    pub node: Node,
 }
 
 impl<T: CoreSyntaxFunctions> DiagramObject<T> for Connection {
