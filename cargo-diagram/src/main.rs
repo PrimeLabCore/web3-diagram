@@ -146,17 +146,17 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-q");
     }
 
-    let popen = PopenConfig::default();
-    popen.stdout = subprocess::Redirection::File(File{ inner: env::current_dir()?.display() });
+    //let popen = PopenConfig::default();
+    //popen.stdout = subprocess::Redirection::File(File{ inner: env::current_dir()?.display() });
     let mut mmdc = Popen::create(&command, PopenConfig::default())?;
     mmdc.wait();
 
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
-    let mut file = File::open(full_output_path.clone())?;
+    /*let mut file = File::open(full_output_path.clonte())?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
-    let root: Element = contents.parse().unwrap();
+    let root: Element = contents.parse().unwrap();*/
 
     Ok(())
 }
