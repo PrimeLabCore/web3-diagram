@@ -5,7 +5,7 @@ use scanner_syn::contract_descriptor::{DefaultContractDescriptor, ContractDescri
 use minidom::Element;
 
 use clap::{Command, Arg};
-use subprocess::{Popen, PopenConfig};
+use subprocess::{Popen, PopenConfig, Redirection, Communicator};
 
 use std::{env, path::Path, fs::File, io::Read};
 
@@ -146,14 +146,25 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-q");
     }
 
-    //let popen = PopenConfig::default();
-    //popen.stdout = subprocess::Redirection::File(File{ inner: env::current_dir()?.display() });
-    let mut mmdc = Popen::create(&command, PopenConfig::default())?;
+    let mut mmdc = Popen::create(&command, PopenConfig {
+        stdout: Redirection::Pipe,
+        ..PopenConfig::default()
+    })?;
     mmdc.wait();
+    
+    let (output, _) = mmdc.communicate(None).unwrap();
+    // ✅ U+2705
+    let split_output: Vec<&str> = output.as_ref().unwrap().split_terminator(&['\u{2705}', '\n'][..]).collect();
+    let mut output_files = vec![];
+    for output_file in &split_output[1..] {
+        if output_file.len() > 1 {
+            output_files.push(output_file);
+        };
+    }
 
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
-    /*let mut file = File::open(full_output_path.clonte())?;
+    /*let mut file = File::open(full_output_path.clone())?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
     let root: Element = contents.parse().unwrap();*/
