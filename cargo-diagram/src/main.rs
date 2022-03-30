@@ -42,7 +42,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .requires("input")
             .conflicts_with("output")
             .help("Format of the output file. Can be used if the output is not provided. 
-            Output name will be name_of_the_input_file and it will be placed at ./res folder. Options"))
+            Output name will be name_of_the_input_file and it will be placed at ./res folder. Optional"))
         .arg(Arg::new("height")
             .short('H')
             .long("height")
@@ -156,16 +156,18 @@ fn main() -> Result<(), subprocess::PopenError> {
     mmdc.wait();
 
     let (output, _) = mmdc.communicate(None).unwrap();
-    // ✅ U+2705
-    let split_output: Vec<&str> = output.as_ref().unwrap().split_terminator(&['\u{2705}', '\n'][..]).collect();
-    let mut output_files = vec![];
-    for output_file in &split_output[1..] {
-        if output_file.len() > 1 {
-            if !is_quiet {
-                println!("Created file {}", output_file);
+    let split_output_lines: Vec<&str> = output.as_ref().unwrap().split_terminator(&['\n'][..]).collect();
+    let mut output_files: Vec<String> = vec![];
+    for line in split_output_lines {
+        // ✅ U+2705
+        if let Some(start) = line.find(" \u{2705}") {
+            if start == 0 {
+                if !is_quiet {
+                    println!("Created file {}", &line.replacen(" \u{2705} ", "", 1));
+                };
+                output_files.push((&line.replacen(" \u{2705} ", "", 1)).to_string());
             };
-            output_files.push(output_file.replace(" ", ""));
-        };
+        }
     }
 
     let height = matches.value_of("height").unwrap_or("600");
