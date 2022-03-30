@@ -7,7 +7,10 @@ use minidom::Element;
 use clap::{Command, Arg};
 use subprocess::{Popen, PopenConfig, Redirection, Communicator};
 
-use std::{env, path::Path, fs::File, io::Read};
+use std::env;
+use std::path::Path;
+use std::fs::{self, File};
+use std::io::Read;
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -92,7 +95,7 @@ fn main() -> Result<(), subprocess::PopenError> {
 
     let input_file = matches.value_of("input").unwrap();
     let mut command = vec!["mmdc", "-i", input_file];
-    let mut full_output_path: String;
+    let full_output_path: String;
     if let Some(output_file) = matches.value_of("output") {
         command.push("-o");
         full_output_path = output_file.clone().into();
@@ -151,23 +154,33 @@ fn main() -> Result<(), subprocess::PopenError> {
         ..PopenConfig::default()
     })?;
     mmdc.wait();
-    
+
     let (output, _) = mmdc.communicate(None).unwrap();
     // ✅ U+2705
     let split_output: Vec<&str> = output.as_ref().unwrap().split_terminator(&['\u{2705}', '\n'][..]).collect();
     let mut output_files = vec![];
     for output_file in &split_output[1..] {
         if output_file.len() > 1 {
-            output_files.push(output_file);
+            if !is_quiet {
+                println!("Created file {}", output_file);
+            };
+            output_files.push(output_file.replace(" ", ""));
         };
     }
 
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
-    /*let mut file = File::open(full_output_path.clone())?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    let root: Element = contents.parse().unwrap();*/
+    for output_file in output_files {
+        let contents = fs::read_to_string(output_file.as_str()).expect("Something went wrong reading the file");
+        let mut root: Element = contents.parse().unwrap();
+        let mut style: String = String::from(root.attr("style").unwrap_or(""));
+        style += format!(" max-width: {}px;", width).as_str();
+        root.set_attr("height", height);
+        root.set_attr("width", width);
+        root.set_attr("style", style);
+        let mut out_file = File::create(output_file.as_str())?;
+        root.write_to(&mut out_file);
+    }
 
     Ok(())
 }
