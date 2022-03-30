@@ -1,16 +1,16 @@
-use scanner_syn;
 use minidom;
+use scanner_syn;
 
-use scanner_syn::contract_descriptor::{DefaultContractDescriptor, ContractDescriptor};
 use minidom::Element;
+use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 
-use clap::{Command, Arg};
-use subprocess::{Popen, PopenConfig, Redirection, Communicator};
+use clap::{Arg, Command};
+use subprocess::{Communicator, Popen, PopenConfig, Redirection};
 
 use std::env;
-use std::path::Path;
 use std::fs::{self, File};
 use std::io::Read;
+use std::path::Path;
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -127,14 +127,14 @@ fn main() -> Result<(), subprocess::PopenError> {
     if let Some(width) = matches.value_of("width") {
         if !is_quiet {
             println!("Set the width: {}", width);
-        };        
+        };
         command.push("-w");
         command.push(width);
     };*/
     if let Some(scale) = matches.value_of("scale") {
         if !is_quiet {
             println!("Set the scale: {}", scale);
-        };  
+        };
         command.push("-s");
         command.push(scale);
     };
@@ -149,14 +149,21 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-q");
     }
 
-    let mut mmdc = Popen::create(&command, PopenConfig {
-        stdout: Redirection::Pipe,
-        ..PopenConfig::default()
-    })?;
+    let mut mmdc = Popen::create(
+        &command,
+        PopenConfig {
+            stdout: Redirection::Pipe,
+            ..PopenConfig::default()
+        },
+    )?;
     mmdc.wait();
 
     let (output, _) = mmdc.communicate(None).unwrap();
-    let split_output_lines: Vec<&str> = output.as_ref().unwrap().split_terminator(&['\n'][..]).collect();
+    let split_output_lines: Vec<&str> = output
+        .as_ref()
+        .unwrap()
+        .split_terminator(&['\n'][..])
+        .collect();
     let mut output_files: Vec<String> = vec![];
     for line in split_output_lines {
         // ✅ U+2705
@@ -173,7 +180,8 @@ fn main() -> Result<(), subprocess::PopenError> {
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
     for output_file in output_files {
-        let contents = fs::read_to_string(output_file.as_str()).expect("Something went wrong reading the file");
+        let contents = fs::read_to_string(output_file.as_str())
+            .expect("Something went wrong reading the file");
         let mut root: Element = contents.parse().unwrap();
         let mut style: String = String::from(root.attr("style").unwrap_or(""));
         style += format!(" max-width: {}px;", width).as_str();
