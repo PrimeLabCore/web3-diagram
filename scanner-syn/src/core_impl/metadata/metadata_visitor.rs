@@ -115,6 +115,7 @@ impl MetadataVisitor {
         Ok(methods)
     }
 
+    
     pub fn get_connections(&self) -> Vec<FunctionInfo> {
         self.connections
             .iter()
@@ -147,10 +148,6 @@ impl MetadataVisitor {
                     ..Default::default()
                 };
 
-                  println!("{:?}", fni.name);
-
-                    println!("{:?}", fni.inner_calls);
-                //println!{"{:?}",fni};
                 fni
             })
             .collect()

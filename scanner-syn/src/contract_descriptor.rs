@@ -1,7 +1,9 @@
-use proc_macro2::{Span, Ident};
-use syn::{ItemStruct, Item};
+use proc_macro2::{Ident, Span};
+use std::iter::IntoIterator;
 use std::io::Read;
+use std::ops::Deref;
 use std::{fs::File, path::Path};
+use syn::{Item, ItemStruct};
 
 use crate::core_impl::*;
 use proc_macro2::TokenStream;
@@ -11,7 +13,7 @@ use syn::visit::Visit;
 use walkdir::WalkDir;
 
 ///Function information from the code scanned by ContractDescriptor
-#[derive(Default, Debug)]
+#[derive(Clone,Default, Debug)]
 pub struct FunctionInfo {
     pub name: String,
     /// Whether method is exported
@@ -110,12 +112,38 @@ impl DefaultContractDescriptor {
     pub fn new() -> Self {
         Self {}
     }
+    fn get_inner_calls(&self,fn_name:String,connections: Vec<FunctionInfo>,  fn_iter:&mut impl Iterator<Item=FunctionInfo>)
+    -> Vec<FunctionInfo> {
+        let fn_info=connections
+            .into_iter()
+            .find(|el| fn_name == el.name)
+            .unwrap();
+        let inner_calls = 
+            
+            fn_info
+            .inner_calls
+            .unwrap()
+            .into_iter()
+            .filter_map(|ic| -> Option<FunctionInfo> {
+                println!("{:?}",ic.name);
+               let ofn= fn_iter.find(|f| f.name == ic.name);
+               if ofn.is_some(){
+                                  println!("Found");
+
+                   return Some(ofn.unwrap().clone())
+               }
+               println!("Not found");
+               None
+            })
+            .collect::<Vec<_>>();
+
+        inner_calls
+    }
     fn metadata(&self, item: proc_macro2::TokenStream) -> syn::Result<Vec<FunctionInfo>> {
         if let Ok(input) = syn::parse2::<syn::File>(item) {
             let mut visitor = MetadataVisitor::new();
             visitor.visit_file(&input);
-            let connections_info = visitor.get_connections();
-
+            let connections = visitor.get_connections();
 
             // println!(
             //     "\n{}",
@@ -123,18 +151,26 @@ impl DefaultContractDescriptor {
             //         #(#connections_info);*
             //     }
             // );
-            let result = visitor
-                .generate_metadata_method()
-                .unwrap()
-                .into_iter()
-                .map(|f_info| FunctionInfo {
-                    inner_calls: None,
-                    ..f_info
-                })
-                .collect::<Vec<_>>()
-                .into();
+            let fns = visitor.generate_metadata_method().unwrap();
+            let mut iiter=fns.iter().cloned();
+            println!("{:?}", iiter);
+            let result =fns.iter()
+                .map(|f_info| {
+                    let mut minfo = FunctionInfo {
+                        inner_calls:None,
+                        ..f_info.clone()
+                    };
 
-            syn::Result::Ok(result)
+                    minfo.inner_calls= Some(self.get_inner_calls(minfo.name.clone(), connections.clone(), &mut iiter));
+                   // println!("{:?}", minfo.name);
+
+                   // println!("{:?}", minfo.inner_calls);
+                    minfo
+                     
+                })
+                .collect::<Vec<FunctionInfo>>();
+
+            syn::Result::Ok(result.to_vec())
         //     let generated = match visitor.generate_metadata_method() {
         //         Ok(x) => x,
         //         Err(err) => return err.to_compile_error(),
@@ -165,6 +201,7 @@ impl ContractDescriptor for DefaultContractDescriptor {
                 contract_functions.extend(functions);
             }
         }
+        
         ContractInfo {
             functions: contract_functions,
         }
