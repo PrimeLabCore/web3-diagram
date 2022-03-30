@@ -1,4 +1,5 @@
-use proc_macro2::Span;
+use proc_macro2::{Span, Ident};
+use syn::{ItemStruct, Item};
 use std::io::Read;
 use std::{fs::File, path::Path};
 
@@ -34,7 +35,7 @@ pub struct FunctionInfo {
     /// Whether method is part of `NearEvent` trait
     pub is_event: bool,
     ///functions are being called by this function
-    pub inner_calls:Option<Vec<FunctionInfo>>,
+    pub inner_calls: Option<Vec<FunctionInfo>>,
 }
 ///Contract information from the code scanned by ContractDescriptor
 pub struct ContractInfo {
@@ -114,18 +115,26 @@ impl DefaultContractDescriptor {
             let mut visitor = MetadataVisitor::new();
             visitor.visit_file(&input);
             let connections_info = visitor.get_connections();
-            let result=visitor
+
+
+            // println!(
+            //     "\n{}",
+            //     quote! {
+            //         #(#connections_info);*
+            //     }
+            // );
+            let result = visitor
                 .generate_metadata_method()
                 .unwrap()
                 .into_iter()
-                .map(| f_info|FunctionInfo{
-                    inner_calls:None,
+                .map(|f_info| FunctionInfo {
+                    inner_calls: None,
                     ..f_info
                 })
                 .collect::<Vec<_>>()
-                ;
-                
-                syn::Result::Ok(result)
+                .into();
+
+            syn::Result::Ok(result)
         //     let generated = match visitor.generate_metadata_method() {
         //         Ok(x) => x,
         //         Err(err) => return err.to_compile_error(),
@@ -137,7 +146,7 @@ impl DefaultContractDescriptor {
         } else {
             syn::__private::Err(syn::Error::new(
                 Span::call_site(),
-                "Failed to parse code decorated with `metadata!{}` macro. Only valid Rust is supported.",
+                "Failed to parse code decorated with `metadataa!{}` macro. Only valid Rust is supported.",
             ))
         }
     }
@@ -152,9 +161,8 @@ impl ContractDescriptor for DefaultContractDescriptor {
             if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
                 println!("\n{}", entry.path().display());
                 let functions = self.get_tokens_from_file_path(entry.path());
-                println!("\n{:?}", functions);
+                //println!("\n{:?}", functions);
                 contract_functions.extend(functions);
-                
             }
         }
         ContractInfo {
