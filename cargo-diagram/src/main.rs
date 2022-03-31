@@ -109,10 +109,6 @@ fn main() -> Result<(), subprocess::PopenError> {
             "md" => input_vec[1].to_owned(),
             _ => input_vec[0].to_owned(),
         };
-        /*let output_extension = match matches.value_of("format") {
-            Some(extension) => ".".to_owned() + extension,
-            _ => ".svg".to_string(),
-        };*/
         let path_output = output_name + &".svg";
         full_output_path = (path.to_str().unwrap().to_owned() + &path_output).to_string();
         command.push(&full_output_path.as_str());
@@ -191,6 +187,28 @@ fn main() -> Result<(), subprocess::PopenError> {
         let mut out_file = File::create(output_file.as_str())?;
         root.write_to(&mut out_file);
     }
+
+    let format = match matches.value_of("format") {
+        Some(format) => {
+            assert!(vec!["svg", "png", "pdf", "md"].contains(&format), "Incorrect output format");
+            format
+        },
+        None => {
+            if let Some(output) = matches.value_of("output") {
+                let split: Vec<&str> = output.rsplit_terminator(&['.'][..]).collect();
+                assert!(
+                    vec!["svg", "png", "pdf", "md"].contains(&split[0]),
+                    "Incorrect output format"
+                );
+                split[0]
+            } else {
+                "svg"
+            }
+        },
+    };
+    if !is_quiet {
+        println!("Set the format: {}", format);
+    };
 
     Ok(())
 }
