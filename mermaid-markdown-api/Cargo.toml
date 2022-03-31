@@ -10,3 +10,4 @@ authors = ["Nicholas Vincent <nicholas.vincent@primelab.io>"]
 strum = "0.24"
 strum_macros = "0.24"
 enum-as-inner = "0.4.0"
+scanner-syn = {path = "../scanner-syn"}

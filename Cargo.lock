@@ -509,6 +509,7 @@ name = "mermaid-markdown-api"
 version = "0.1.0"
 dependencies = [
  "enum-as-inner",
+ "scanner-syn",
  "strum",
  "strum_macros",
 ]
