@@ -115,16 +115,40 @@ impl MetadataVisitor {
         Ok(methods)
     }
 
-    pub fn get_connections(&self) -> Vec<TokenStream> {
+    
+    pub fn get_connections(&self) -> Vec<FunctionInfo> {
         self.connections
             .iter()
             .map(|(m, c)| {
-                quote! {
-                    FunctionConnections {
-                        name: #m,
-                        functions: #(#c),*
-                    }
-                }
+                let ident: Ident = syn::parse2(m.to_owned()).unwrap();
+                let exps: Vec<FunctionInfo> = c
+                    .iter()
+                    .filter_map(|fs| {
+                        let ident: Result<Ident, Error> = syn::parse2(fs.to_owned());
+                        if ident.is_ok() {
+                            return Some(
+                                FunctionInfo{name:ident.unwrap().to_string(),..Default::default()});
+                        }
+                        let exp: Result<Box<Expr>, Error> = syn::parse2(fs.to_owned());
+                        if exp.is_ok() {
+                            match *exp.unwrap() {
+                                Expr::Path(p)=>
+                                   return Some(
+                                       FunctionInfo{name:p.path.segments.last().unwrap().ident.to_string(),..Default::default()}),
+                                _=> return None
+                            }
+                        }
+                        None
+                    })
+                    .collect();
+              
+                let fni = FunctionInfo {
+                    name: ident.to_string(),
+                    inner_calls:Some(exps),
+                    ..Default::default()
+                };
+
+                fni
             })
             .collect()
     }
