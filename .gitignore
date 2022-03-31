@@ -9,3 +9,5 @@ Cargo.lock
 /res/
 /neardev
 .env
+
+.idea
