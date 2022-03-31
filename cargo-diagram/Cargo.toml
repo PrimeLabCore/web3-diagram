@@ -10,4 +10,6 @@ clap = { version = "3.1.6", features = ["derive"] }
 subprocess = "0.2.8"
 minidom = "0.14.0"
 
+usvg = "0.22.0"
+tiny-skia = "0.6.3"
 scanner-syn = { path = "../scanner-syn" }

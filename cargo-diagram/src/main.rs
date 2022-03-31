@@ -122,13 +122,12 @@ fn main() -> Result<(), subprocess::PopenError> {
 
     // Determine the input file
     let input_file = matches.value_of("input").unwrap();
-    let mut command = vec!["mmdc", "-i", input_file];
+    let mut command = vec!["npx", "mmdc", "-i", input_file];
 
     // Set the output file
     let full_output_path: String;
     if let Some(output_file) = matches.value_of("output") {
         command.push("-o");
-        full_output_path = output_file.clone().into();
         command.push(output_file);
     } else {
         command.push("-o");
@@ -139,9 +138,10 @@ fn main() -> Result<(), subprocess::PopenError> {
             "md" => input_vec[1].to_owned(),
             _ => input_vec[0].to_owned(),
         };
-        let path_output = output_name + &".svg";
-        full_output_path = (path.to_str().unwrap().to_owned() + &path_output).to_string();
-        command.push(&full_output_path.as_str());
+        let path_output = output_name + ".svg";
+        full_output_path = path.to_str().unwrap().to_owned() + &path_output;
+        command.push(full_output_path.as_str());
+        std::fs::create_dir_all(path)?;
     };
     /*if let Some(height) = matches.value_of("height") {
         if !is_quiet {
