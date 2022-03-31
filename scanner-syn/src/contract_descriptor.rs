@@ -123,16 +123,14 @@ impl DefaultContractDescriptor {
             .into_iter()
             .find(|el| fn_name == el.name)
             .unwrap();
-        let mut fn_iter=fns.into_iter();
-        
+        let mut fn_iter = fns.into_iter();
+
         let inner_calls = con_info
             .inner_calls
             .unwrap()
             .into_iter()
             .filter_map(|ic| -> Option<FunctionInfo> {
-                fn_iter.find(|f| 
-                    f.name == ic.name && !f.is_payable && !f.is_init
-                )
+                fn_iter.find(|f| f.name == ic.name && !f.is_payable && !f.is_init)
             })
             .collect::<Vec<_>>();
 
@@ -154,17 +152,14 @@ impl DefaultContractDescriptor {
             .fns
             .iter()
             .map(|f_info| {
-                let mut minfo = FunctionInfo {
-                    inner_calls: None,
+                FunctionInfo {
+                    inner_calls: self.get_inner_calls(
+                        f_info.name.clone(),
+                        connections.clone(),
+                        iiter.clone(),
+                    ),
                     ..f_info.clone()
-                };
-
-                minfo.inner_calls =
-                    self.get_inner_calls(minfo.name.clone(), connections.clone(), iiter.clone());
-                // println!("{:?}", minfo.name);
-
-                // println!("{:?}", minfo.inner_calls);
-                minfo
+                }
             })
             .collect::<Vec<FunctionInfo>>();
 
