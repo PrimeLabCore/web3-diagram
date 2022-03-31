@@ -1,16 +1,21 @@
+//! The command line tool which creates diagrams from markdown files.
+//! Based on [mermaid-cli](https://github.com/mermaid-js/mermaid-cli).
+//!
+//! In order to create a diagram one must provide the full path to the input file.
+//! Optional parameters are output, format, scale, height, width, background color, quiet.
+//!
+//! For more detailed info run with `--help` or `-h` flag.
 use minidom;
-use scanner_syn;
+//use scanner_syn;
 
 use minidom::Element;
-use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 
 use clap::{Arg, Command};
-use subprocess::{Communicator, Popen, PopenConfig, Redirection};
+use subprocess::{Popen, PopenConfig, Redirection};
+// use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 
 use std::env;
 use std::fs::{self, File};
-use std::io::Read;
-use std::path::Path;
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -32,8 +37,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .required(false)
             .takes_value(true)
             .requires("input")
-            .help("Output file. It should be either md, svg, png or pdf. Optional.
-                Default: \"./res/name_of_the_input_file.svg\""))
+            .help("Output file. It should be either md, svg, png or pdf. Optional. Default: \"./res/name_of_the_input_file.svg\""))
         .arg(Arg::new("format")
             .short('f')
             .long("format")
@@ -41,8 +45,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .takes_value(true)
             .requires("input")
             .conflicts_with("output")
-            .help("Format of the output file. Can be used if the output is not provided. 
-            Output name will be name_of_the_input_file and it will be placed at ./res folder. Optional"))
+            .help("Format of the output file. Can be used if the output is not provided. Output name will be name_of_the_input_file and it will be placed at ./res folder. Optional"))
         .arg(Arg::new("height")
             .short('H')
             .long("height")
@@ -63,7 +66,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .required(false)
             .takes_value(true)
             .requires("input")
-            .help("Puppeteer scale factor, default 1. Optional"))
+            .help("Puppeteer scale factor. Optional. Default: 1"))
         .arg(Arg::new("backgroundColor")
             .short('b')
             .long("backgroundColor")
@@ -91,10 +94,37 @@ fn main() -> Result<(), subprocess::PopenError> {
         env::set_current_dir(&current_path)?;
     }*/
 
+    // Determine whether the program should output some info
     let is_quiet = matches.is_present("quiet");
 
+    // Determine the format of the output
+    let format = match matches.value_of("format") {
+        Some(format) => {
+            assert!(vec!["svg", "png", "pdf", "md"].contains(&format), "Incorrect output format");
+            format
+        },
+        None => {
+            if let Some(output) = matches.value_of("output") {
+                let split: Vec<&str> = output.rsplit_terminator(&['.'][..]).collect();
+                assert!(
+                    vec!["svg", "png", "pdf", "md"].contains(&split[0]),
+                    "Incorrect output format"
+                );
+                split[0]
+            } else {
+                "svg"
+            }
+        },
+    };
+    if !is_quiet {
+        println!("Set the format: {}", format);
+    };
+
+    // Determine the input file
     let input_file = matches.value_of("input").unwrap();
     let mut command = vec!["mmdc", "-i", input_file];
+
+    // Set the output file
     let full_output_path: String;
     if let Some(output_file) = matches.value_of("output") {
         command.push("-o");
@@ -127,6 +157,8 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-w");
         command.push(width);
     };*/
+
+    // Check if the scale is provided
     if let Some(scale) = matches.value_of("scale") {
         if !is_quiet {
             println!("Set the scale: {}", scale);
@@ -134,6 +166,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-s");
         command.push(scale);
     };
+    // Check if the background color is provided
     if let Some(background_color) = matches.value_of("backgroundColor") {
         if !is_quiet {
             println!("Set the background color: {}", background_color);
@@ -145,6 +178,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-q");
     }
 
+    // Call mermaid-cli with the constracted command, create svg file
     let mut mmdc = Popen::create(
         &command,
         PopenConfig {
@@ -152,8 +186,9 @@ fn main() -> Result<(), subprocess::PopenError> {
             ..PopenConfig::default()
         },
     )?;
-    mmdc.wait();
+    let _ = mmdc.wait();
 
+    // List all of the created files
     let (output, _) = mmdc.communicate(None).unwrap();
     let split_output_lines: Vec<&str> = output
         .as_ref()
@@ -173,6 +208,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         }
     }
 
+    // Change the height and the width of the created file to the amount, which were provided 
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
     for output_file in output_files {
@@ -185,29 +221,15 @@ fn main() -> Result<(), subprocess::PopenError> {
         root.set_attr("width", width);
         root.set_attr("style", style);
         let mut out_file = File::create(output_file.as_str())?;
-        root.write_to(&mut out_file);
+        root.write_to(&mut out_file).unwrap();
     }
 
-    let format = match matches.value_of("format") {
-        Some(format) => {
-            assert!(vec!["svg", "png", "pdf", "md"].contains(&format), "Incorrect output format");
-            format
-        },
-        None => {
-            if let Some(output) = matches.value_of("output") {
-                let split: Vec<&str> = output.rsplit_terminator(&['.'][..]).collect();
-                assert!(
-                    vec!["svg", "png", "pdf", "md"].contains(&split[0]),
-                    "Incorrect output format"
-                );
-                split[0]
-            } else {
-                "svg"
-            }
-        },
-    };
-    if !is_quiet {
-        println!("Set the format: {}", format);
+    // TODO: Create the output files with the given extension from the svg file
+    match format {
+        "png" => {},
+        "pdf" => {},
+        "md" => {}
+        _ => unreachable!(),
     };
 
     Ok(())
