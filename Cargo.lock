@@ -226,6 +226,7 @@ dependencies = [
  "resvg",
  "scanner-syn",
  "subprocess",
+ "svg2pdf",
  "tiny-skia",
  "usvg",
 ]
@@ -590,6 +591,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "image"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db207d030ae38f1eb6f240d5a1c1c88ff422aa005d10f8c6c6fc5e75286ab30e"
+dependencies = [
+ "bytemuck",
+ "byteorder",
+ "color_quant",
+ "gif",
+ "jpeg-decoder",
+ "num-iter",
+ "num-rational 0.4.0",
+ "num-traits",
+ "png",
+]
+
+[[package]]
 name = "impl-codec"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -618,6 +636,12 @@ dependencies = [
  "autocfg",
  "hashbrown",
 ]
+
+[[package]]
+name = "itoa"
+version = "0.4.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b71991ff56294aa922b450139ee08b3bfc70982c6b2c7562771375cf73542dd4"
 
 [[package]]
 name = "itoa"
@@ -778,7 +802,7 @@ dependencies = [
  "near-primitives-core",
  "near-rpc-error-macro",
  "near-vm-errors",
- "num-rational",
+ "num-rational 0.3.2",
  "primitive-types",
  "rand 0.7.3",
  "reed-solomon-erasure",
@@ -803,7 +827,7 @@ dependencies = [
  "hex",
  "lazy_static",
  "near-account-id",
- "num-rational",
+ "num-rational 0.3.2",
  "serde",
  "serde_json",
  "sha2",
@@ -927,6 +951,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-iter"
+version = "0.1.42"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2021c8337a54d21aca0d59a92577a029af9431cb59b909b03252b9c164fad59"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
 name = "num-rational"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -937,6 +972,17 @@ dependencies = [
  "num-integer",
  "num-traits",
  "serde",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d41702bd167c2df5520b384281bc111a4b5efcf7fbc4c9c222c815b07e0a6a6a"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
 ]
 
 [[package]]
@@ -1005,6 +1051,17 @@ dependencies = [
  "cc",
  "cfg-if 0.1.10",
  "rand 0.7.3",
+]
+
+[[package]]
+name = "pdf-writer"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36d760a6f2ac90811cba1006a298e8a7e5ce2c922bb5dc7f7000911a4a6b60f4"
+dependencies = [
+ "bitflags",
+ "itoa 0.4.8",
+ "ryu",
 ]
 
 [[package]]
@@ -1373,7 +1430,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e8d9fa5c3b304765ce1fd9c4c8a3de2c8db365a5b91be52f186efc675681d95"
 dependencies = [
  "indexmap",
- "itoa",
+ "itoa 1.0.1",
  "ryu",
  "serde",
 ]
@@ -1468,6 +1525,18 @@ name = "subtle"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6bdef32e8150c2a081110b42772ffe7d7c9032b606bc226c8260fd97e0976601"
+
+[[package]]
+name = "svg2pdf"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b138cf9a64a04719d8c095503c05c3c965bdda411f6ceacd2a21d4c7506e73da"
+dependencies = [
+ "image",
+ "miniz_oxide 0.4.4",
+ "pdf-writer",
+ "usvg",
+]
 
 [[package]]
 name = "svgfilters"

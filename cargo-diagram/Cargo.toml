@@ -12,5 +12,6 @@ minidom = "0.14.0"
 
 usvg = "0.22.0"
 resvg = "0.22.0"
+svg2pdf = "0.3.0"
 tiny-skia = "0.6.3"
 scanner-syn = { path = "../scanner-syn" }

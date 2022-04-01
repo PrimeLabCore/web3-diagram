@@ -222,35 +222,44 @@ fn main() -> Result<(), subprocess::PopenError> {
     }
 
     // TODO: Create the output files with the given extension from the svg file
-    let mut opt = usvg::Options{
-    resources_dir: std::fs::canonicalize(output_files[0].as_str())
-        .ok()
-        .and_then(|p| p.parent().map(|p| p.to_path_buf())),
-        ..Default::default()
-    };
-    opt.fontdb.load_system_fonts();
-    let svg_data = std::fs::read(output_files[0].clone()).unwrap();
-    let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
-    let pixmap_size = rtree.svg_node().size.to_screen_size();
-    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
-    resvg::render(
-        &rtree,
-        usvg::FitTo::Original,
-        tiny_skia::Transform::default(),
-        pixmap.as_mut(),
-    )
-    .unwrap();
 
     match format {
         "svg" => {}
         "png" => {
+            let mut opt = usvg::Options {
+                resources_dir: std::fs::canonicalize(output_files[0].as_str())
+                    .ok()
+                    .and_then(|p| p.parent().map(|p| p.to_path_buf())),
+                ..Default::default()
+            };
+            opt.fontdb.load_system_fonts();
+            let svg_data = std::fs::read(&output_files[0]).unwrap();
+            let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
+            let pixmap_size = rtree.svg_node().size.to_screen_size();
+            let mut pixmap =
+                tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+            resvg::render(
+                &rtree,
+                usvg::FitTo::Original,
+                tiny_skia::Transform::default(),
+                pixmap.as_mut(),
+            )
+            .unwrap();
             let mut png_path = env::current_dir()?;
             png_path.push("res/");
             png_path.push(output_name);
             png_path.set_extension("png");
             pixmap.save_png(png_path).unwrap();
         }
-        "pdf" => {}
+        "pdf" => {
+            let svg = std::fs::read_to_string(&output_files[0]).unwrap();
+            let pdf = svg2pdf::convert_str(&svg, svg2pdf::Options::default()).unwrap();
+            let mut pdf_path = env::current_dir()?;
+            pdf_path.push("res/");
+            pdf_path.push(output_name);
+            pdf_path.set_extension("pdf");
+            std::fs::write(pdf_path, pdf).unwrap();
+        }
         "md" => {}
         _ => unreachable!(),
     };
