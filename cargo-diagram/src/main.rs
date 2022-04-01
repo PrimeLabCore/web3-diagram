@@ -100,9 +100,12 @@ fn main() -> Result<(), subprocess::PopenError> {
     // Determine the format of the output
     let format = match matches.value_of("format") {
         Some(format) => {
-            assert!(vec!["svg", "png", "pdf", "md"].contains(&format), "Incorrect output format");
+            assert!(
+                vec!["svg", "png", "pdf", "md"].contains(&format),
+                "Incorrect output format"
+            );
             format
-        },
+        }
         None => {
             if let Some(output) = matches.value_of("output") {
                 let split: Vec<&str> = output.rsplit_terminator(&['.'][..]).collect();
@@ -114,7 +117,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             } else {
                 "svg"
             }
-        },
+        }
     };
     if !is_quiet {
         println!("Set the format: {}", format);
@@ -188,11 +191,7 @@ fn main() -> Result<(), subprocess::PopenError> {
 
     // List all of the created files
     let (output, err) = mmdc.communicate(None).unwrap();
-    let split_output_lines: Vec<&str> = output
-        .as_ref()
-        .unwrap()
-        .split('\n')
-        .collect();
+    let split_output_lines: Vec<&str> = output.as_ref().unwrap().split('\n').collect();
     let mut output_files: Vec<String> = vec![];
     for line in split_output_lines {
         // ✅ U+2705
@@ -206,7 +205,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         }
     }
 
-    // Change the height and the width of the created file to the amount, which were provided 
+    // Change the height and the width of the created file to the amount, which were provided
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
     for output_file in output_files.iter() {
@@ -223,23 +222,35 @@ fn main() -> Result<(), subprocess::PopenError> {
     }
 
     // TODO: Create the output files with the given extension from the svg file
-    let opt = usvg::Options::default();
+    let mut opt = usvg::Options{
+    resources_dir: std::fs::canonicalize(output_files[0].as_str())
+        .ok()
+        .and_then(|p| p.parent().map(|p| p.to_path_buf())),
+        ..Default::default()
+    };
+    opt.fontdb.load_system_fonts();
     let svg_data = std::fs::read(output_files[0].clone()).unwrap();
     let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
     let pixmap_size = rtree.svg_node().size.to_screen_size();
     let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
-    resvg::render(&rtree, usvg::FitTo::Original, tiny_skia::Transform::default(), pixmap.as_mut()).unwrap();
-    
+    resvg::render(
+        &rtree,
+        usvg::FitTo::Original,
+        tiny_skia::Transform::default(),
+        pixmap.as_mut(),
+    )
+    .unwrap();
+
     match format {
-        "svg" => {},
+        "svg" => {}
         "png" => {
             let mut png_path = env::current_dir()?;
             png_path.push("res/");
             png_path.push(output_name);
             png_path.set_extension("png");
             pixmap.save_png(png_path).unwrap();
-        },
-        "pdf" => {},
+        }
+        "pdf" => {}
         "md" => {}
         _ => unreachable!(),
     };
