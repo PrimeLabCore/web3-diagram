@@ -222,19 +222,18 @@ fn main() -> Result<(), subprocess::PopenError> {
     }
 
     // TODO: Create the output files with the given extension from the svg file
-
+    let mut opt = usvg::Options {
+        resources_dir: std::fs::canonicalize(output_files[0].as_str())
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf())),
+        ..Default::default()
+    };
+    opt.fontdb.load_system_fonts();
+    let svg_data = std::fs::read(&output_files[0]).unwrap();
+    let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
     match format {
         "svg" => {}
         "png" => {
-            let mut opt = usvg::Options {
-                resources_dir: std::fs::canonicalize(output_files[0].as_str())
-                    .ok()
-                    .and_then(|p| p.parent().map(|p| p.to_path_buf())),
-                ..Default::default()
-            };
-            opt.fontdb.load_system_fonts();
-            let svg_data = std::fs::read(&output_files[0]).unwrap();
-            let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
             let pixmap_size = rtree.svg_node().size.to_screen_size();
             let mut pixmap =
                 tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
@@ -252,8 +251,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             pixmap.save_png(png_path).unwrap();
         }
         "pdf" => {
-            let svg = std::fs::read_to_string(&output_files[0]).unwrap();
-            let pdf = svg2pdf::convert_str(&svg, svg2pdf::Options::default()).unwrap();
+            let pdf = svg2pdf::convert_tree(&rtree, svg2pdf::Options::default());
             let mut pdf_path = env::current_dir()?;
             pdf_path.push("res/");
             pdf_path.push(output_name);
