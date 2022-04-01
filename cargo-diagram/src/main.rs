@@ -125,24 +125,22 @@ fn main() -> Result<(), subprocess::PopenError> {
     let mut command = vec!["npx", "mmdc", "-i", input_file];
 
     // Set the output file
-    let full_output_path: String;
     if let Some(output_file) = matches.value_of("output") {
-        command.push("-o");
-        command.push(output_file);
-    } else {
-        command.push("-o");
-        let mut path = env::current_dir()?;
-        path.push("res/");
-        let input_vec: Vec<&str> = input_file.rsplit_terminator(&['.', '/'][..]).collect();
-        let output_name = match input_vec[0] {
-            "md" => input_vec[1].to_owned(),
-            _ => input_vec[0].to_owned(),
-        };
-        let path_output = output_name + ".svg";
-        full_output_path = path.to_str().unwrap().to_owned() + &path_output;
-        command.push(full_output_path.as_str());
-        std::fs::create_dir_all(path)?;
+        // command.push("-o");
+        // command.push(output_file);
+    }
+    command.push("-o");
+    let mut path = env::current_dir()?;
+    path.push("res/");
+    let input_vec: Vec<&str> = input_file.rsplit_terminator(&['.', '/'][..]).collect();
+    let output_name = match input_vec[0] {
+        "md" => input_vec[1].to_owned(),
+        _ => input_vec[0].to_owned(),
     };
+    let path_output = output_name.clone() + ".svg";
+    let full_output_path = path.to_str().unwrap().to_owned() + &path_output;
+    command.push(full_output_path.as_str());
+    std::fs::create_dir_all(path)?;
     /*if let Some(height) = matches.value_of("height") {
         if !is_quiet {
             println!("Set the height: {}", height);
@@ -189,11 +187,11 @@ fn main() -> Result<(), subprocess::PopenError> {
     let _ = mmdc.wait();
 
     // List all of the created files
-    let (output, _) = mmdc.communicate(None).unwrap();
+    let (output, err) = mmdc.communicate(None).unwrap();
     let split_output_lines: Vec<&str> = output
         .as_ref()
         .unwrap()
-        .split_terminator(&['\n'][..])
+        .split('\n')
         .collect();
     let mut output_files: Vec<String> = vec![];
     for line in split_output_lines {
@@ -211,7 +209,7 @@ fn main() -> Result<(), subprocess::PopenError> {
     // Change the height and the width of the created file to the amount, which were provided 
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
-    for output_file in output_files {
+    for output_file in output_files.iter() {
         let contents = fs::read_to_string(output_file.as_str())
             .expect("Something went wrong reading the file");
         let mut root: Element = contents.parse().unwrap();
@@ -225,8 +223,22 @@ fn main() -> Result<(), subprocess::PopenError> {
     }
 
     // TODO: Create the output files with the given extension from the svg file
+    let opt = usvg::Options::default();
+    let svg_data = std::fs::read(output_files[0].clone()).unwrap();
+    let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
+    let pixmap_size = rtree.svg_node().size.to_screen_size();
+    let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+    resvg::render(&rtree, usvg::FitTo::Original, tiny_skia::Transform::default(), pixmap.as_mut()).unwrap();
+    
     match format {
-        "png" => {},
+        "svg" => {},
+        "png" => {
+            let mut png_path = env::current_dir()?;
+            png_path.push("res/");
+            png_path.push(output_name);
+            png_path.set_extension("png");
+            pixmap.save_png(png_path).unwrap();
+        },
         "pdf" => {},
         "md" => {}
         _ => unreachable!(),
