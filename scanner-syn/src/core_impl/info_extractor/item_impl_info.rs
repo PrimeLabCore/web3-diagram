@@ -28,7 +28,8 @@ impl ItemImplInfo {
         let mut methods = vec![];
         for subitem in &mut original.items {
             if let ImplItem::Method(m) = subitem {
-                let method_info = ImplItemMethodInfo::new(m, ty.clone())?;
+                let method_info =
+                    ImplItemMethodInfo::new(m, is_trait_impl, has_near_sdk_attr, ty.clone())?;
                 methods.push(method_info);
             }
         }

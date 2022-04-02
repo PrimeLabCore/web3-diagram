@@ -3,5 +3,5 @@
 members = [
     "example",
     "scanner-syn",
-    "cargo-diagram"
+    "mermaid-markdown-api",
 ]

@@ -24,7 +24,11 @@ impl Contract {
     }
 
     pub fn show_amount(self) -> u64 {
+        self.display();
         self.count
+    }
+    fn display(&self){
+
     }
 
     #[payable]
