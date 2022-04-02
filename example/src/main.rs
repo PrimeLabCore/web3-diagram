@@ -6,7 +6,7 @@ use mermaid_markdown_api::syntax::FlowDirection;
 use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 fn main() {
     let desc = DefaultContractDescriptor::new();
-    let contractInfo=desc.get_contract_info_for_crate();
-    let markdown=ScannerPipeline::from(contractInfo,FlowDirection::TD);
+    let contract_info=desc.get_contract_info_for_crate();
+    let markdown=ScannerPipeline::from(contract_info,FlowDirection::TD);
     println!("{:?}",markdown.content);
 }
