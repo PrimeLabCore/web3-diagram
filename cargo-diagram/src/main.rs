@@ -1,16 +1,21 @@
+//! The command line tool which creates diagrams from markdown files.
+//! Based on [mermaid-cli](https://github.com/mermaid-js/mermaid-cli).
+//!
+//! In order to create a diagram one must provide the full path to the input file.
+//! Optional parameters are output, format, scale, height, width, background color, quiet.
+//!
+//! For more detailed info run with `--help` or `-h` flag.
 use minidom;
-use scanner_syn;
+//use scanner_syn;
 
 use minidom::Element;
-use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 
 use clap::{Arg, Command};
-use subprocess::{Communicator, Popen, PopenConfig, Redirection};
+use subprocess::{Popen, PopenConfig, Redirection};
+// use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 
 use std::env;
 use std::fs::{self, File};
-use std::io::Read;
-use std::path::Path;
 
 fn main() -> Result<(), subprocess::PopenError> {
     let matches = Command::new("cargo-diagram")
@@ -32,8 +37,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .required(false)
             .takes_value(true)
             .requires("input")
-            .help("Output file. It should be either md, svg, png or pdf. Optional.
-                Default: \"./res/name_of_the_input_file.svg\""))
+            .help("Output file. It should be either md, svg, png or pdf. Optional. Default: \"./res/name_of_the_input_file.svg\""))
         .arg(Arg::new("format")
             .short('f')
             .long("format")
@@ -41,8 +45,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .takes_value(true)
             .requires("input")
             .conflicts_with("output")
-            .help("Format of the output file. Can be used if the output is not provided. 
-            Output name will be name_of_the_input_file and it will be placed at ./res folder. Optional"))
+            .help("Format of the output file. Can be used if the output is not provided. Output name will be name_of_the_input_file and it will be placed at ./res folder. Optional"))
         .arg(Arg::new("height")
             .short('H')
             .long("height")
@@ -63,7 +66,7 @@ fn main() -> Result<(), subprocess::PopenError> {
             .required(false)
             .takes_value(true)
             .requires("input")
-            .help("Puppeteer scale factor, default 1. Optional"))
+            .help("Puppeteer scale factor. Optional. Default: 1"))
         .arg(Arg::new("backgroundColor")
             .short('b')
             .long("backgroundColor")
@@ -91,32 +94,56 @@ fn main() -> Result<(), subprocess::PopenError> {
         env::set_current_dir(&current_path)?;
     }*/
 
+    // Determine whether the program should output some info
     let is_quiet = matches.is_present("quiet");
 
-    let input_file = matches.value_of("input").unwrap();
-    let mut command = vec!["mmdc", "-i", input_file];
-    let full_output_path: String;
-    if let Some(output_file) = matches.value_of("output") {
-        command.push("-o");
-        full_output_path = output_file.clone().into();
-        command.push(output_file);
-    } else {
-        command.push("-o");
-        let mut path = env::current_dir()?;
-        path.push("res/");
-        let input_vec: Vec<&str> = input_file.rsplit_terminator(&['.', '/'][..]).collect();
-        let output_name = match input_vec[0] {
-            "md" => input_vec[1].to_owned(),
-            _ => input_vec[0].to_owned(),
-        };
-        /*let output_extension = match matches.value_of("format") {
-            Some(extension) => ".".to_owned() + extension,
-            _ => ".svg".to_string(),
-        };*/
-        let path_output = output_name + &".svg";
-        full_output_path = (path.to_str().unwrap().to_owned() + &path_output).to_string();
-        command.push(&full_output_path.as_str());
+    // Determine the format of the output
+    let format = match matches.value_of("format") {
+        Some(format) => {
+            assert!(
+                vec!["svg", "png", "pdf", "md"].contains(&format),
+                "Incorrect output format"
+            );
+            format
+        }
+        None => {
+            if let Some(output) = matches.value_of("output") {
+                let split: Vec<&str> = output.rsplit_terminator(&['.'][..]).collect();
+                assert!(
+                    vec!["svg", "png", "pdf", "md"].contains(&split[0]),
+                    "Incorrect output format"
+                );
+                split[0]
+            } else {
+                "svg"
+            }
+        }
     };
+    if !is_quiet {
+        println!("Set the format: {}", format);
+    };
+
+    // Determine the input file
+    let input_file = matches.value_of("input").unwrap();
+    let mut command = vec!["npx", "mmdc", "-i", input_file];
+
+    // Set the output file
+    if let Some(output_file) = matches.value_of("output") {
+        // command.push("-o");
+        // command.push(output_file);
+    }
+    command.push("-o");
+    let mut path = env::current_dir()?;
+    path.push("res/");
+    let input_vec: Vec<&str> = input_file.rsplit_terminator(&['.', '/'][..]).collect();
+    let output_name = match input_vec[0] {
+        "md" => input_vec[1].to_owned(),
+        _ => input_vec[0].to_owned(),
+    };
+    let path_output = output_name.clone() + ".svg";
+    let full_output_path = path.to_str().unwrap().to_owned() + &path_output;
+    command.push(full_output_path.as_str());
+    std::fs::create_dir_all(path)?;
     /*if let Some(height) = matches.value_of("height") {
         if !is_quiet {
             println!("Set the height: {}", height);
@@ -131,6 +158,8 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-w");
         command.push(width);
     };*/
+
+    // Check if the scale is provided
     if let Some(scale) = matches.value_of("scale") {
         if !is_quiet {
             println!("Set the scale: {}", scale);
@@ -138,6 +167,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-s");
         command.push(scale);
     };
+    // Check if the background color is provided
     if let Some(background_color) = matches.value_of("backgroundColor") {
         if !is_quiet {
             println!("Set the background color: {}", background_color);
@@ -149,6 +179,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         command.push("-q");
     }
 
+    // Call mermaid-cli with the constracted command, create svg file
     let mut mmdc = Popen::create(
         &command,
         PopenConfig {
@@ -156,14 +187,11 @@ fn main() -> Result<(), subprocess::PopenError> {
             ..PopenConfig::default()
         },
     )?;
-    mmdc.wait();
+    let _ = mmdc.wait();
 
-    let (output, _) = mmdc.communicate(None).unwrap();
-    let split_output_lines: Vec<&str> = output
-        .as_ref()
-        .unwrap()
-        .split_terminator(&['\n'][..])
-        .collect();
+    // List all of the created files
+    let (output, err) = mmdc.communicate(None).unwrap();
+    let split_output_lines: Vec<&str> = output.as_ref().unwrap().split('\n').collect();
     let mut output_files: Vec<String> = vec![];
     for line in split_output_lines {
         // ✅ U+2705
@@ -177,9 +205,10 @@ fn main() -> Result<(), subprocess::PopenError> {
         }
     }
 
+    // Change the height and the width of the created file to the amount, which were provided
     let height = matches.value_of("height").unwrap_or("600");
     let width = matches.value_of("width").unwrap_or("800");
-    for output_file in output_files {
+    for output_file in output_files.iter() {
         let contents = fs::read_to_string(output_file.as_str())
             .expect("Something went wrong reading the file");
         let mut root: Element = contents.parse().unwrap();
@@ -189,8 +218,49 @@ fn main() -> Result<(), subprocess::PopenError> {
         root.set_attr("width", width);
         root.set_attr("style", style);
         let mut out_file = File::create(output_file.as_str())?;
-        root.write_to(&mut out_file);
+        root.write_to(&mut out_file).unwrap();
     }
+
+    // TODO: Create the output files with the given extension from the svg file
+    let mut opt = usvg::Options {
+        resources_dir: std::fs::canonicalize(output_files[0].as_str())
+            .ok()
+            .and_then(|p| p.parent().map(|p| p.to_path_buf())),
+        ..Default::default()
+    };
+    opt.fontdb.load_system_fonts();
+    let svg_data = std::fs::read(&output_files[0]).unwrap();
+    let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
+    match format {
+        "svg" => {}
+        "png" => {
+            let pixmap_size = rtree.svg_node().size.to_screen_size();
+            let mut pixmap =
+                tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+            resvg::render(
+                &rtree,
+                usvg::FitTo::Original,
+                tiny_skia::Transform::default(),
+                pixmap.as_mut(),
+            )
+            .unwrap();
+            let mut png_path = env::current_dir()?;
+            png_path.push("res/");
+            png_path.push(output_name);
+            png_path.set_extension("png");
+            pixmap.save_png(png_path).unwrap();
+        }
+        "pdf" => {
+            let pdf = svg2pdf::convert_tree(&rtree, svg2pdf::Options::default());
+            let mut pdf_path = env::current_dir()?;
+            pdf_path.push("res/");
+            pdf_path.push(output_name);
+            pdf_path.set_extension("pdf");
+            std::fs::write(pdf_path, pdf).unwrap();
+        }
+        "md" => {}
+        _ => unreachable!(),
+    };
 
     Ok(())
 }
