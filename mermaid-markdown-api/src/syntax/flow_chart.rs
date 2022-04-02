@@ -186,6 +186,7 @@ impl FlowChart {
             ActionType::View => Shape::Circle,
             ActionType::Process => Shape::Rectangle,
             ActionType::Event => Shape::Flag,
+            ActionType::None => Shape::Rectangle,
         }
     }
 

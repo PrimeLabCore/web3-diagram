@@ -10,10 +10,12 @@ pub enum ScopeType {
     Public,
     Trait,
     Payable,
+    Contract,
 }
 
 #[derive(AsRefStr, Debug)]
 pub enum ActionType {
+    None,
     Mutation,
     View,
     Process,
