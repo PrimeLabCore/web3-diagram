@@ -334,6 +334,7 @@ dependencies = [
 name = "example"
 version = "0.1.0"
 dependencies = [
+ "mermaid-markdown-api",
  "near-sdk",
  "scanner-syn",
  "serde",

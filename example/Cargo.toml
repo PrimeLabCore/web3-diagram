@@ -10,5 +10,6 @@ edition = "2018"
 [dependencies]
 near-sdk = "4.0.0-pre.7"
 scanner-syn = {path = "../scanner-syn"}
+mermaid-markdown-api={path = "../mermaid-markdown-api"}
 serde = "1"
 serde_json = "1"

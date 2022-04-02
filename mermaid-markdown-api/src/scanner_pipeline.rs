@@ -70,35 +70,37 @@ impl Into<ConnectionType> for FunctionInfo {
     }
 }
 
-impl From<Vec<FunctionInfo>> for Connections {
-    fn from(val: Vec<FunctionInfo>) -> Self {
-        if !val.is_empty() {
-            let inner = val
-                .into_iter()
-                .map(|ifn| -> Connection {
-                    Connection {
-                        connection_type: ifn.clone().into(),
-                        node: Node {
-                            name: ifn.name.clone(),
-                            scope: ifn.clone().into(),
-                            action: ifn.clone().into(),
-                            connections: Connections::from(ifn.clone().inner_calls.unwrap()).0,
-                        },
-                    }
-                })
-                .collect();
-
-            return Connections(inner);
+impl From<Option<Vec<FunctionInfo>>> for Connections {
+    fn from(val: Option<Vec<FunctionInfo>>) -> Self {
+        if val.is_some() {
+            let finfo = val.unwrap();
+            if !finfo.is_empty() {
+                let inner = finfo
+                    .into_iter()
+                    .map(|ifn| -> Connection {
+                        Connection {
+                            connection_type: ifn.clone().into(),
+                            node: Node {
+                                name: ifn.name.clone(),
+                                scope: ifn.clone().into(),
+                                action: ifn.clone().into(),
+                                connections: Connections::from(ifn.clone().inner_calls).0,
+                            },
+                        }
+                    })
+                    .collect();
+                return Connections(inner);
+            }
         }
         Connections(Vec::new())
     }
 }
 
 pub struct ScannerPipeline {
-    content: String,
+    pub content: String,
 }
 impl ScannerPipeline {
-    fn from(contract: ContractInfo, flow_direction: FlowDirection) -> ScannerPipeline {
+    pub fn from(contract: ContractInfo, flow_direction: FlowDirection) -> ScannerPipeline {
         let mut hierarchy_tree_root = Node {
             name: "Contract".to_string(),
             scope: ScopeType::Contract,
@@ -112,7 +114,7 @@ impl ScannerPipeline {
             .for_each(|(_, value)| {
                 hierarchy_tree_root
                     .connections
-                    .extend(Connections::from(value.fns).0);
+                    .extend(Connections::from(Some(value.fns)).0);
             });
 
         let mut api = MdAPI::<FlowChart>::new(flow_direction, hierarchy_tree_root);
