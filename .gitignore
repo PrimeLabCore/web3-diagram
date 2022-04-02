@@ -11,3 +11,5 @@ Cargo.lock
 .env
 
 .idea
+example/.DS_Store
+.DS_Store

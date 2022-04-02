@@ -198,7 +198,7 @@ impl ContractDescriptor for DefaultContractDescriptor {
         // Walk into every dir to find every `rs` file
         for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
             if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
-                println!("\n{}", entry.path().display());
+                //println!("\n{}", entry.path().display());
                 let metadata = self.get_tokens_from_file_path(entry.path());
                 //println!("\n{:?}", metadata.connections);
                 let scoped_fns = metadata.fns.clone();
@@ -212,7 +212,7 @@ impl ContractDescriptor for DefaultContractDescriptor {
             .map(|m| self.resolve_call_hierarchy(m, fns.clone()))
             .collect();
 
-        println!("\n{:?}", resolved);
+        //println!("\n{:?}", resolved);
         ContractInfo {
             contract_metadata: resolved,
         }

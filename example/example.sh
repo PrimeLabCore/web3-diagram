@@ -1,4 +1,5 @@
 set -e
-
+cd ../
 cargo build --release
-../target/release/example
+cd ./example
+../target/release/cargo-diagram -O --input diagram.md
