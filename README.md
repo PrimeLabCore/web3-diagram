@@ -20,33 +20,46 @@
 <br>
 
 ## Install cli with [brew](https://brew.sh/)
-___
-`brew install mermaid-cli`
+
+```bash
+brew install mermaid-cli
+```
 
 <br>
 
 ## Install [node](https://gist.github.com/tomysmile/da3cb8194ec8f0e4df86#install-node)
-___
-`brew install node`
+
+```bash
+brew install node
+```
 
 <br>
 
 ## Web3 Utility Usage
-___
+
 
 ### 1) Clone raffle smart contract from near examples
 
-`git clone git@github.com:near-examples/rust-ft-raffle.git`
+```bash
+git clone git@github.com:near-examples/rust-ft-raffle.git
+```
 
 <br>
 
 ### 2) Go to the root directory
-`cd rust-ft-raffle` 
+```bash
+cd rust-ft-raffle
+```
 
 ### 3) Run utility
-`web3d -O --input raffle.md`
+```bash
+web3d -O --input raffle.md
+```
 
 <br>
+
+## Options
+___
 
 | Key/Command | Description |
 | ----------- | ----------- |
