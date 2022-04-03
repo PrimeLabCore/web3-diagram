@@ -62,7 +62,7 @@ git clone git@github.com:near-examples/rust-ft-raffle.git
 cd rust-ft-raffle
 ```
 
-### 3) Run utility
+### 3) Run utility againt cloned smart contract
 ```bash
 web3d -O --input raffle.md
 ```
