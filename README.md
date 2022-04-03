@@ -15,7 +15,18 @@
 <br>
 
 ### Key Features
-**Method specific file hierarchy diagrams**<br>
+___
+
+| Feature | Description |
+| ----------- | ----------- |
+| View Functions | Near smart contract view only functions |
+| Mutation | Near smart contract mutable functions |
+| Process | Helper or utility functions, also functions out of smart contract scope |
+| Events | Functions that falls into near event [standard]([https://link](https://github.com/near/near-sdk-rs/blob/master/near-contract-standards/src/event.rs)) |
+| View Trait Impl | View only functions but trait implamentation |
+| Mutation Trait Impl | Mutable functions but trait implamentation |
+| Payable | Functions that except Near |
+| Initializers | Smart contract initializer functions |
 
 <br>
 
