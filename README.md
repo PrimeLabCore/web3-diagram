@@ -15,7 +15,6 @@
 <br>
 
 ### Key Features
-___
 
 | Feature | Description |
 | ----------- | ----------- |
