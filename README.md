@@ -4,12 +4,12 @@
 
 <br>
 
-### Which problem does it solve?
+## Which problem does it solve?
 **Provides the ability to generate representations of methods to allow for anyone to quickly understand how the contract works.**
 
 <br>
 
-### Who can use this?
+## Who can use this?
 **Smart contract developers use it to generate the images, but the images can help anyone trying to understand what’s going on.**
 
 <br>
