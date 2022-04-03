@@ -32,6 +32,10 @@ impl Contract {
     }
 
     #[payable]
+    pub fn pay(&mut self, amount: u64) {
+        self.count += amount;
+    }
+
     fn add_amount(&mut self, amount: u64) {
         self.count += amount;
     }

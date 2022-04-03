@@ -11,6 +11,7 @@ pub enum ScopeType {
     Trait,
     Payable,
     Contract,
+    Initializer,
 }
 
 #[derive(AsRefStr, Debug)]

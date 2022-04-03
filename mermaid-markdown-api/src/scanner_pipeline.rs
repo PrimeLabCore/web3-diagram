@@ -30,7 +30,7 @@ impl DerefMut for Connections {
 
 impl Into<ScopeType> for FunctionInfo {
     fn into(self) -> ScopeType {
-        if self.is_public {
+        if self.is_public && !self.is_init && !self.is_payable {
             return ScopeType::Public
         }
         if !self.is_public {
@@ -38,6 +38,9 @@ impl Into<ScopeType> for FunctionInfo {
         }
         if self.is_trait_impl {
             return ScopeType::Trait
+        }
+        if self.is_init {
+            return ScopeType::Initializer
         }
         if self.is_payable {
             return ScopeType::Payable
@@ -121,7 +124,23 @@ impl ScannerPipeline {
             });
 
         let mut api = MdAPI::<FlowChart>::new(flow_direction, hierarchy_tree_root);
-        let result = api.parse_hierarchy();
+        let mut result = api.parse_hierarchy();
+
+        result.push_str("\n\rclassDef Public-Mutation fill:#12A5F1,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\rclassDef Public-View fill:#12A5F1,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\rclassDef Private-View fill:#858585,stroke:#333,stroke-width:2px;");
+
+        result.push_str("\n\rclassDef Private-Mutation fill:#858585,stroke:#333,stroke-width:1px;");
+        result.push_str("\n\rclassDef Public-Event fill:#FFDF80,stroke:#333,stroke-width:2px,stroke-dasharray: 4 4");
+        result.push_str("\n\rclassDef Private-Event fill:#FFDF80,stroke:#333,stroke-width:1px,stroke-dasharray: 4 4");
+        result.push_str("\n\rclassDef Private-None fill:#858585,stroke:#333,stroke-width:1px");
+        result.push_str("\n\rclassDef Private-Process fill:#858585,stroke:#333,stroke-width:1px");
+        result.push_str("\n\rclassDef Public-Process fill:#858585,stroke:#333,stroke-width:2px");
+        result.push_str("\n\rclassDef Public-None fill:#858585,stroke:#333,stroke-width:2px");
+        result.push_str("\n\rclassDef Initializer-None fill:#FFA080,stroke:#333,stroke-width:2px");
+        result.push_str("\n\rclassDef Payable-None fill:#6AA84F,stroke:#333,stroke-width:2px");
+        result.push_str("\n\rclassDef Payable-Mutation fill:#6AA84F,stroke:#333,stroke-width:2px");
+        result.push_str("\n\rclassDef Contract-None fill:#C2D5E3,stroke:#333,stroke-width:2px");
 
         ScannerPipeline { content: result }
     }

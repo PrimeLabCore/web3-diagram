@@ -60,7 +60,7 @@ pub struct NodeConfig<'a> {
     /// The ID that will be assigned to this node
     pub id: &'a str,
     /// An optional class name to assign to the node
-    pub class: Option<&'a str>,
+    pub class: Option<String>,
     /// The shape of the node
     pub shape: Shape,
     /// The text to be displayed within the node
@@ -257,7 +257,7 @@ impl CoreSyntaxFunctions for FlowChart {
         // If a class name was passed push it to `self.data`
         if let Some(class) = node_config.class {
             self.data.push_str(":::");
-            self.data.push_str(class);
+            self.data.push_str(class.as_str());
         }
     }
 
@@ -340,10 +340,11 @@ impl CoreSyntaxFunctions for FlowChart {
         id: Option<&'a str>,
     ) -> SyntaxConfigFile<'a> {
         if let Some(id) = id {
+           
             // If an ID was passed use it
             SyntaxConfigFile::FlowChart(ObjectConfig::NodeConfig(NodeConfig {
                 id,
-                class: Some(node.scope.as_ref()),
+                class: Some(format!("{}-{}",node.scope.as_ref(),node.action.as_ref())),
                 shape: self.get_shape_from_node(node),
                 inner_text: &node.name,
             }))
@@ -351,7 +352,7 @@ impl CoreSyntaxFunctions for FlowChart {
             // Else use the Node's name
             SyntaxConfigFile::FlowChart(ObjectConfig::NodeConfig(NodeConfig {
                 id: &node.name,
-                class: Some(node.scope.as_ref()),
+                class: Some(format!("{}-{}",node.scope.as_ref(),node.action.as_ref())),
                 shape: self.get_shape_from_node(node),
                 inner_text: &node.name,
             }))
