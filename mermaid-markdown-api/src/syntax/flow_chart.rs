@@ -204,10 +204,10 @@ impl FlowChart {
                 (LineType::Solid, ArrowType::Standard, ArrowDirection::Right)
             }
             ConnectionType::CrossContractConnection => {
-                (LineType::Solid, ArrowType::Standard, ArrowDirection::Right)
+                (LineType::Dashed, ArrowType::Standard, ArrowDirection::Right)
             }
             ConnectionType::Emission => {
-                (LineType::Solid, ArrowType::Standard, ArrowDirection::Right)
+                (LineType::Dashed, ArrowType::O, ArrowDirection::None)
             }
         }
     }

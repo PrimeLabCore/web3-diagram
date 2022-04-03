@@ -31,13 +31,16 @@ impl DerefMut for Connections {
 impl Into<ScopeType> for FunctionInfo {
     fn into(self) -> ScopeType {
         if self.is_public {
-            ScopeType::Public
-        } else if !self.is_public {
-            ScopeType::Private
-        } else if self.is_trait_impl {
-            ScopeType::Trait
-        } else if self.is_payable {
-            ScopeType::Payable
+            return ScopeType::Public
+        }
+        if !self.is_public {
+            return ScopeType::Private
+        }
+        if self.is_trait_impl {
+            return ScopeType::Trait
+        }
+        if self.is_payable {
+            return ScopeType::Payable
         } else {
             ScopeType::Public
         }
