@@ -20,19 +20,19 @@
 <br>
 
 ## Install cli with [brew](https://brew.sh/)
-***
+___
 `brew install mermaid-cli`
 
 <br>
 
 ## Install [node](https://gist.github.com/tomysmile/da3cb8194ec8f0e4df86#install-node)
-***
+___
 `brew install node`
 
 <br>
 
 ## Web3 Utility Usage
-***
+___
 
 ### 1) Clone raffle smart contract from near examples
 
