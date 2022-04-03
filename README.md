@@ -14,7 +14,7 @@
 
 <br>
 
-### Key Features
+## Key Features
 
 | Feature | Description |
 | ----------- | ----------- |
@@ -69,7 +69,6 @@ web3d -O --input raffle.md
 <br>
 
 ## Options
-___
 
 | Key/Command | Description |
 | ----------- | ----------- |
