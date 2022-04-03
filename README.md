@@ -14,39 +14,61 @@
 
 <br>
 
-### Key Features
-**Method specific file hierarchy diagrams**<br>
+## Key Features
+
+| Feature | Description |
+| ----------- | ----------- |
+| View Functions | Near smart contract view only functions |
+| Mutation | Near smart contract mutable functions |
+| Process | Helper or utility functions, also functions out of smart contract scope |
+| Events | Functions that falls into near event [standard]([https://link](https://github.com/near/near-sdk-rs/blob/master/near-contract-standards/src/event.rs)) |
+| View Trait Impl | View only functions but trait implamentation |
+| Mutation Trait Impl | Mutable functions but trait implamentation |
+| Payable | Functions that except Near |
+| Initializers | Smart contract initializer functions |
 
 <br>
 
 ## Install cli with [brew](https://brew.sh/)
-***
-`brew install mermaid-cli`
+
+```bash
+brew install mermaid-cli
+```
 
 <br>
 
 ## Install [node](https://gist.github.com/tomysmile/da3cb8194ec8f0e4df86#install-node)
-***
-`brew install node`
+
+```bash
+brew install node
+```
 
 <br>
 
 ## Web3 Utility Usage
-***
+
 
 ### 1) Clone raffle smart contract from near examples
 
-`git clone git@github.com:near-examples/rust-ft-raffle.git`
+```bash
+git clone git@github.com:near-examples/rust-ft-raffle.git
+```
 
 <br>
 
 ### 2) Go to the root directory
-`cd rust-ft-raffle` 
+```bash
+cd rust-ft-raffle
+```
 
-### 3) Run utility
-`web3d -O --input raffle.md`
+### 3) Run utility againt cloned smart contract
+```bash
+web3d -O --input raffle.md
+```
 
 <br>
+
+## Options
 
 | Key/Command | Description |
 | ----------- | ----------- |

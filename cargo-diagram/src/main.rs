@@ -280,6 +280,11 @@ fn main() -> Result<(), subprocess::PopenError> {
     Ok(())
 }
 
+/// Function opens output file in web browser
+///
+/// # Arguments
+///
+/// * `output_path` - Output file path to open in browser
 fn open_output_file_in_browser(output_path: PathBuf) {
     let command = vec!["open", "-a", "Google Chrome", output_path.to_str().unwrap()];
 
@@ -293,6 +298,12 @@ fn open_output_file_in_browser(output_path: PathBuf) {
     .unwrap();
     let _ = executor.wait();
 }
+
+/// Function creates markdown file with specified file name
+///
+/// # Arguments
+///
+/// * `file_name` - Markdown file name
 fn create_markdown_file(file_name: &str) -> Result<PathBuf, std::io::Error> {
     let desc = DefaultContractDescriptor::new();
     let contract_info = desc.get_contract_info_for_crate();
