@@ -126,21 +126,21 @@ impl ScannerPipeline {
         let mut api = MdAPI::<FlowChart>::new(flow_direction, hierarchy_tree_root);
         let mut result = api.parse_hierarchy();
 
-        result.push_str("\n\rclassDef Public-Mutation fill:#12A5F1,stroke:#333,stroke-width:2px;");
-        result.push_str("\n\rclassDef Public-View fill:#12A5F1,stroke:#333,stroke-width:2px;");
-        result.push_str("\n\rclassDef Private-View fill:#858585,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Public-Mutation fill:#12A5F1,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Public-View fill:#12A5F1,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Private-View fill:#858585,stroke:#333,stroke-width:2px;");
 
-        result.push_str("\n\rclassDef Private-Mutation fill:#858585,stroke:#333,stroke-width:1px;");
-        result.push_str("\n\rclassDef Public-Event fill:#FFDF80,stroke:#333,stroke-width:2px,stroke-dasharray: 4 4");
-        result.push_str("\n\rclassDef Private-Event fill:#FFDF80,stroke:#333,stroke-width:1px,stroke-dasharray: 4 4");
-        result.push_str("\n\rclassDef Private-None fill:#858585,stroke:#333,stroke-width:1px");
-        result.push_str("\n\rclassDef Private-Process fill:#858585,stroke:#333,stroke-width:1px");
-        result.push_str("\n\rclassDef Public-Process fill:#858585,stroke:#333,stroke-width:2px");
-        result.push_str("\n\rclassDef Public-None fill:#858585,stroke:#333,stroke-width:2px");
-        result.push_str("\n\rclassDef Initializer-None fill:#FFA080,stroke:#333,stroke-width:2px");
-        result.push_str("\n\rclassDef Payable-None fill:#6AA84F,stroke:#333,stroke-width:2px");
-        result.push_str("\n\rclassDef Payable-Mutation fill:#6AA84F,stroke:#333,stroke-width:2px");
-        result.push_str("\n\rclassDef Contract-None fill:#C2D5E3,stroke:#333,stroke-width:2px");
+        result.push_str("\n\tclassDef Private-Mutation fill:#858585,stroke:#333,stroke-width:1px;");
+        result.push_str("\n\tclassDef Public-Event fill:#FFDF80,stroke:#333,stroke-width:2px,stroke-dasharray: 4 4;");
+        result.push_str("\n\tclassDef Private-Event fill:#FFDF80,stroke:#333,stroke-width:1px,stroke-dasharray: 4 4;");
+        result.push_str("\n\tclassDef Private-None fill:#858585,stroke:#333,stroke-width:1px;");
+        result.push_str("\n\tclassDef Private-Process fill:#858585,stroke:#333,stroke-width:1px;");
+        result.push_str("\n\tclassDef Public-Process fill:#858585,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Public-None fill:#858585,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Initializer-None fill:#FFA080,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Payable-None fill:#6AA84F,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Payable-Mutation fill:#6AA84F,stroke:#333,stroke-width:2px;");
+        result.push_str("\n\tclassDef Contract-None fill:#C2D5E3,stroke:#333,stroke-width:2px;");
 
         ScannerPipeline { content: result }
     }

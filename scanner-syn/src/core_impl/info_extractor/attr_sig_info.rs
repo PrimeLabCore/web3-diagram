@@ -16,6 +16,8 @@ pub struct AttrSigInfo {
     pub method_type: MethodType,
     /// Whether method accepting $NEAR.
     pub is_payable: bool,
+    ///Whether method is test method
+    pub is_test:bool,
     /// Whether method can accept calls from self (current account)
     pub is_private: bool,
     /// The serializer that we use for `env::input()`.
@@ -61,12 +63,17 @@ impl AttrSigInfo {
         let mut method_type = MethodType::Regular;
         let mut is_payable = false;
         let mut is_private = false;
+        let mut is_test = false;
+
         // By the default we serialize the result with JSON.
         let mut result_serializer = SerializerType::JSON;
 
         let mut payable_attr = None;
         for attr in original_attrs.iter() {
+
             let attr_str = attr.path.to_token_stream().to_string();
+                             
+
             match attr_str.as_str() {
                 "init" => {
                     let init_attr: InitAttr = syn::parse2(attr.tokens.clone())?;
@@ -82,6 +89,9 @@ impl AttrSigInfo {
                 }
                 "private" => {
                     is_private = true;
+                }
+                "test"=>{
+                    is_test=true;
                 }
                 "result_serializer" => {
                     let serializer: SerializerAttr = syn::parse2(attr.tokens.clone())?;
@@ -136,6 +146,7 @@ impl AttrSigInfo {
             method_type,
             is_payable,
             is_private,
+            is_test,
             result_serializer,
             receiver,
             returns,
@@ -159,6 +170,7 @@ impl AttrSigInfo {
             ));
         };
         result.input_serializer = input_serializer;
+           
         Ok(result)
     }
 

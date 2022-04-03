@@ -22,6 +22,8 @@ pub struct FunctionInfo {
     pub is_trait_impl: bool,
     /// Whether method does not modify the state.
     pub is_init: bool,
+      /// Whether method is test method
+    pub is_test: bool,
     /// Whether method accepting $NEAR.
     pub is_payable: bool,
     /// Whether method does not modify the state.

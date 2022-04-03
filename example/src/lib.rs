@@ -49,3 +49,10 @@ impl SomeStruct {
         count + 2
     }
 }
+
+
+    #[test]
+    #[should_panic(expected = "The contract is not initialized")]
+    fn test_default() {
+       
+    }

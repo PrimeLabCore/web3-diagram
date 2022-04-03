@@ -105,17 +105,20 @@ impl MetadataVisitor {
             .iter()
             .flat_map(|i| &i.methods)
             .map(|m| m.metadata_struct())
+            .filter(|f| !f.is_test)
             .collect();
         let functions: Vec<FunctionInfo> = self
             .fn_items_infos
             .iter()
             .map(|s| metadata_fn_struct(&s.attr_signature_info))
+            .filter(|f| !f.is_test)
             .collect();
+
         methods.extend(functions);
+
         Ok(methods)
     }
 
-    
     pub fn get_connections(&self) -> Vec<FunctionInfo> {
         self.connections
             .iter()
@@ -126,25 +129,30 @@ impl MetadataVisitor {
                     .filter_map(|fs| {
                         let ident: Result<Ident, Error> = syn::parse2(fs.to_owned());
                         if ident.is_ok() {
-                            return Some(
-                                FunctionInfo{name:ident.unwrap().to_string(),..Default::default()});
+                            return Some(FunctionInfo {
+                                name: ident.unwrap().to_string(),
+                                ..Default::default()
+                            });
                         }
                         let exp: Result<Box<Expr>, Error> = syn::parse2(fs.to_owned());
                         if exp.is_ok() {
                             match *exp.unwrap() {
-                                Expr::Path(p)=>
-                                   return Some(
-                                       FunctionInfo{name:p.path.segments.last().unwrap().ident.to_string(),..Default::default()}),
-                                _=> return None
+                                Expr::Path(p) => {
+                                    return Some(FunctionInfo {
+                                        name: p.path.segments.last().unwrap().ident.to_string(),
+                                        ..Default::default()
+                                    })
+                                }
+                                _ => return None,
                             }
                         }
                         None
                     })
                     .collect();
-              
+
                 let fni = FunctionInfo {
                     name: ident.to_string(),
-                    inner_calls:Some(exps),
+                    inner_calls: Some(exps),
                     ..Default::default()
                 };
 

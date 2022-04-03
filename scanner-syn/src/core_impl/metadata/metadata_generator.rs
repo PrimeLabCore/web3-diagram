@@ -30,6 +30,8 @@ impl ImplItemMethodInfo {
         let is_view = matches!(&self.attr_signature_info.method_type, &MethodType::View);
         let is_public = self.is_public || (self.is_trait_impl && self.has_near_sdk_attr);
         let is_payable = self.attr_signature_info.is_payable;
+        let is_test = self.attr_signature_info.is_test;
+
         let is_private_cccalls = self.attr_signature_info.is_private;
         let mut is_process = false;
         let is_init = matches!(
@@ -124,7 +126,8 @@ impl ImplItemMethodInfo {
             is_private_cccalls,
             is_out_of_contract_scope: false,
             is_event,
-            inner_calls:None,
+            is_test,
+            inner_calls: None,
         }
     }
 }
@@ -145,6 +148,9 @@ pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> FunctionInfo {
         name: method_name_str,
         is_process: matches!(sig_info.returns, ReturnType::Default),
         is_out_of_contract_scope: true,
+        is_test: sig_info.is_test,
+        is_payable: sig_info.is_payable,
+        is_public: !sig_info.is_private,
         ..Default::default()
     }
 }

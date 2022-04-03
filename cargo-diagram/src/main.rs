@@ -239,39 +239,39 @@ fn main() -> Result<(), subprocess::PopenError> {
     };
     opt.fontdb.load_system_fonts();
     println!("{}", input_file_name);
-    let svg_data = std::fs::read(output_path.clone()).unwrap();
+    // let svg_data = std::fs::read(output_path.clone()).unwrap();
 
-    let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
-    match format {
-        "svg" => {}
-        "png" => {
-            let pixmap_size = rtree.svg_node().size.to_screen_size();
-            let mut pixmap =
-                tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
-            resvg::render(
-                &rtree,
-                usvg::FitTo::Original,
-                tiny_skia::Transform::default(),
-                pixmap.as_mut(),
-            )
-            .unwrap();
-            let mut png_path = env::current_dir()?;
-            png_path.push("res/");
-            png_path.push(output_name);
-            png_path.set_extension("png");
-            pixmap.save_png(png_path).unwrap();
-        }
-        "pdf" => {
-            let pdf = svg2pdf::convert_tree(&rtree, svg2pdf::Options::default());
-            let mut pdf_path = env::current_dir()?;
-            pdf_path.push("res/");
-            pdf_path.push(output_name);
-            pdf_path.set_extension("pdf");
-            std::fs::write(pdf_path, pdf).unwrap();
-        }
-        "md" => {}
-        _ => unreachable!(),
-    };
+    // let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
+    // match format {
+    //     "svg" => {}
+    //     "png" => {
+    //         let pixmap_size = rtree.svg_node().size.to_screen_size();
+    //         let mut pixmap =
+    //             tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
+    //         resvg::render(
+    //             &rtree,
+    //             usvg::FitTo::Original,
+    //             tiny_skia::Transform::default(),
+    //             pixmap.as_mut(),
+    //         )
+    //         .unwrap();
+    //         let mut png_path = env::current_dir()?;
+    //         png_path.push("res/");
+    //         png_path.push(output_name);
+    //         png_path.set_extension("png");
+    //         pixmap.save_png(png_path).unwrap();
+    //     }
+    //     "pdf" => {
+    //         let pdf = svg2pdf::convert_tree(&rtree, svg2pdf::Options::default());
+    //         let mut pdf_path = env::current_dir()?;
+    //         pdf_path.push("res/");
+    //         pdf_path.push(output_name);
+    //         pdf_path.set_extension("pdf");
+    //         std::fs::write(pdf_path, pdf).unwrap();
+    //     }
+    //     "md" => {}
+    //     _ => unreachable!(),
+    // };
 
     let should_open_in_browser = matches.is_present("openb");
     if should_open_in_browser {
