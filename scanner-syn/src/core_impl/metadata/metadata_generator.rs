@@ -15,8 +15,10 @@ impl ImplItemMethodInfo {
     ///
     /// * The struct that contains information about the method.
     pub fn metadata_struct(&self) -> FunctionInfo {
-        let method_name_str = self.attr_signature_info.ident.to_string();
-
+        let mut method_name_str = self.attr_signature_info.ident.to_string();
+        if method_name_str=="default"{
+            method_name_str=method_name_str.replace("default", "def_ault");
+        }
         let is_event = type_is_event(&self.struct_type);
         if !is_event && !self.has_near_sdk_attr {
             let function_info = FunctionInfo {

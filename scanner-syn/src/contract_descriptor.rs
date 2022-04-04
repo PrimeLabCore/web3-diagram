@@ -22,7 +22,7 @@ pub struct FunctionInfo {
     pub is_trait_impl: bool,
     /// Whether method does not modify the state.
     pub is_init: bool,
-      /// Whether method is test method
+    /// Whether method is test method
     pub is_test: bool,
     /// Whether method accepting $NEAR.
     pub is_payable: bool,
@@ -121,10 +121,16 @@ impl DefaultContractDescriptor {
         connections: Vec<FunctionInfo>,
         fns: Vec<FunctionInfo>,
     ) -> Option<Vec<FunctionInfo>> {
+        let mut def=fn_name;
+        if def=="def_ault"{
+            def=def.replace("def_ault", "default");
+        }
+
         let con_info = connections
             .into_iter()
-            .find(|el| fn_name == el.name)
+            .find(|el| def == el.name)
             .unwrap();
+
         let mut fn_iter = fns.into_iter();
 
         let inner_calls = con_info
@@ -153,15 +159,13 @@ impl DefaultContractDescriptor {
         let result = metadata
             .fns
             .iter()
-            .map(|f_info| {
-                FunctionInfo {
-                    inner_calls: self.get_inner_calls(
-                        f_info.name.clone(),
-                        connections.clone(),
-                        iiter.clone(),
-                    ),
-                    ..f_info.clone()
-                }
+            .map(|f_info| FunctionInfo {
+                inner_calls: self.get_inner_calls(
+                    f_info.name.clone(),
+                    connections.clone(),
+                    iiter.clone(),
+                ),
+                ..f_info.clone()
             })
             .collect::<Vec<FunctionInfo>>();
 
@@ -198,7 +202,13 @@ impl ContractDescriptor for DefaultContractDescriptor {
         let mut contract_metadata: Vec<ContractDescriptorMeta> = vec![];
         let mut fns: Vec<FunctionInfo> = vec![];
         // Walk into every dir to find every `rs` file
-        for entry in WalkDir::new(".").into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(".").into_iter().filter_map(|e| {
+            let dir = e.unwrap().clone();
+            if !dir.path().to_str().unwrap().contains("test") {
+                return Some(dir);
+            }
+            None
+        }) {
             if entry.path().extension().map(|s| s == "rs").unwrap_or(false) {
                 //println!("\n{}", entry.path().display());
                 let metadata = self.get_tokens_from_file_path(entry.path());
