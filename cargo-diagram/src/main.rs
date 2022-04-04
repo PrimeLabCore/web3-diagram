@@ -11,7 +11,7 @@ use minidom::Element;
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
-use clap::{Arg, Command};
+use clap::Parser;
 use subprocess::{Popen, PopenConfig, Redirection};
 // use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 
@@ -21,78 +21,41 @@ use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescri
 use std::env;
 use std::fs::{self, File};
 
-fn main() -> Result<(), subprocess::PopenError> {
-    let matches = Command::new("cargo-diagram")
-        /*.arg(Arg::new("path")
-            .short('p')
-            .long("path")
-            .required(false)
-            .takes_value(true)
-            .help("Path to the Rust project. Must contain Cargo.toml file. Optional"))*/
-        .arg(Arg::new("input")
-            .short('i')
-            .long("input")
-            .required(true)
-            .takes_value(true)
-            .help("Path to the markdown file with the input data"))
-        .arg(Arg::new("output")
-            .short('o')
-            .long("output")
-            .required(false)
-            .takes_value(true)
-            .requires("input")
-            .help("Output file. It should be either md, svg, png or pdf. Optional. Default: \"./res/name_of_the_input_file.svg\""))
-        .arg(Arg::new("format")
-            .short('f')
-            .long("format")
-            .required(false)
-            .takes_value(true)
-            .requires("input")
-            .conflicts_with("output")
-            .help("Format of the output file. Can be used if the output is not provided. Output name will be name_of_the_input_file and it will be placed at ./res folder. Optional"))
-        .arg(Arg::new("height")
-            .short('H')
-            .long("height")
-            .required(false)
-            .takes_value(true)
-            .requires("input")
-            .help("Height of the page. Optional. Default: 600"))
-        .arg(Arg::new("width")
-            .short('w')
-            .long("width")
-            .required(false)
-            .takes_value(true)
-            .requires("input")
-            .help("Width of the page. Optional. Default: 800"))
-        .arg(Arg::new("scale")
-            .short('s')
-            .long("scale")
-            .required(false)
-            .takes_value(true)
-            .requires("input")
-            .help("Puppeteer scale factor. Optional. Default: 1"))
-        .arg(Arg::new("backgroundColor")
-            .short('b')
-            .long("backgroundColor")
-            .required(false)
-            .takes_value(true)
-            .requires("input")
-            .help("Background color. Example: transparent, red, '#F0F0F0'. Optional. Default: white"))
-        .arg(Arg::new("openb")
-            .short('O')
-            .long("openb")
-            .required(false)
-            .takes_value(false)
-            .requires("input")
-            .help("Should open output file in browser"))
-        .arg(Arg::new("quiet")
-            .short('q')
-            .long("quiet")
-            .required(false)
-            .takes_value(false)
-            .help("Suppress log output"))
-        .get_matches();
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Cli {
+    /// Path to the markdown file with the input data
+    #[clap(short, long = "input", parse(from_os_str), value_name = "FILE")]
+    input_file: PathBuf,
+    /// Output file. It should be either md, svg, png or pdf. Optional. Default: \"./res/name_of_the_input_file.svg\
+    #[clap(short, long, parse(from_os_str), value_name = "FILE")]
+    output_file: Option<PathBuf>,
+    /// Format of the output file. Can be used if the output is not provided. Output name will be name_of_the_input_file and it will be placed at ./res folder. Optional
+    #[clap(short, long, value_name = "FORMAT")]
+    format: Option<String>,
+    /// Scale factor. Optional. Default: 1
+    #[clap(short, long, value_name = "SCALE")]
+    scale: Option<String>,
+    /// Height of the page. Optional. Default: 600
+    #[clap(short, long, value_name = "HEIGHT")]
+    height: Option<String>,
+    /// Width of the page. Optional. Default: 800
+    #[clap(short, long, value_name = "WIDTH")]
+    width: Option<String>,
+    /// Background color. Example: transparent, red, '#F0F0F0'. Optional. Default: white
+    #[clap(short, long, value_name = "COLOR")]
+    background_color: Option<String>,
+    /// Should open output file in browser
+    #[clap(short = 'O', long)]
+    openb: bool,
+    /// Suppress log output
+    #[clap(short, long)]
+    quiet: bool,
+}
 
+
+fn main() -> Result<(), subprocess::PopenError> {
+    let args = Cli::parse();
     /*if let Some(path) = matches.value_of("path") {
         let current_path = env::current_dir()?;
         env::set_current_dir(&path)?;
@@ -105,39 +68,12 @@ fn main() -> Result<(), subprocess::PopenError> {
         env::set_current_dir(&current_path)?;
     }*/
 
-    // Determine whether the program should output some info
-    let is_quiet = matches.is_present("quiet");
-
-    // Determine the format of the output
-    let format = match matches.value_of("format") {
-        Some(format) => {
-            assert!(
-                vec!["svg", "png", "pdf", "md"].contains(&format),
-                "Incorrect output format"
-            );
-            format
-        }
-        None => {
-            if let Some(output) = matches.value_of("output") {
-                let split: Vec<&str> = output.rsplit_terminator(&['.'][..]).collect();
-                assert!(
-                    vec!["svg", "png", "pdf", "md"].contains(&split[0]),
-                    "Incorrect output format"
-                );
-                split[0]
-            } else {
-                "svg"
-            }
-        }
-    };
-    if !is_quiet {
+    let format = args.format.unwrap_or("svg".to_string());
+    if !args.quiet {
         println!("Set the format: {}", format);
     };
 
-    // Determine the input file
-    let input_file_name = matches.value_of("input").unwrap();
-
-    let input_file_path: PathBuf = create_markdown_file(input_file_name).unwrap();
+    let input_file_path: PathBuf = create_markdown_file(args.input_file.clone()).unwrap();
     let mut command = vec!["npx", "mmdc", "-i", input_file_path.to_str().unwrap()];
 
     let mut output_path = input_file_path.clone();
@@ -145,13 +81,8 @@ fn main() -> Result<(), subprocess::PopenError> {
     let output_name = output_path.file_stem().unwrap();
 
     // Set the output file
-    if let Some(output_file) = matches.value_of("output") {
-        // command.push("-o");
-        // command.push(output_file);
-    } else {
         command.push("-o");
         command.push(output_path.to_str().unwrap());
-    }
 
     /*if let Some(height) = matches.value_of("height") {
         if !is_quiet {
@@ -169,22 +100,22 @@ fn main() -> Result<(), subprocess::PopenError> {
     };*/
 
     // Check if the scale is provided
-    if let Some(scale) = matches.value_of("scale") {
-        if !is_quiet {
+    if let Some(scale) = &args.scale {
+        if !args.quiet {
             println!("Set the scale: {}", scale);
         };
         command.push("-s");
         command.push(scale);
     };
     // Check if the background color is provided
-    if let Some(background_color) = matches.value_of("backgroundColor") {
-        if !is_quiet {
+    if let Some(background_color) = &args.background_color {
+        if !args.quiet {
             println!("Set the background color: {}", background_color);
         };
         command.push("-b");
         command.push(background_color);
     };
-    if is_quiet {
+    if args.quiet {
         command.push("-q");
     }
 
@@ -238,7 +169,7 @@ fn main() -> Result<(), subprocess::PopenError> {
         ..Default::default()
     };
     opt.fontdb.load_system_fonts();
-    println!("{}", input_file_name);
+    println!("{}", args.input_file.into_os_string().into_string().unwrap());
     // let svg_data = std::fs::read(output_path.clone()).unwrap();
 
     // let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref()).unwrap();
@@ -273,8 +204,7 @@ fn main() -> Result<(), subprocess::PopenError> {
     //     _ => unreachable!(),
     // };
 
-    let should_open_in_browser = matches.is_present("openb");
-    if should_open_in_browser {
+    if args.openb {
         open_output_file_in_browser(output_path);
     }
     Ok(())
@@ -304,7 +234,7 @@ fn open_output_file_in_browser(output_path: PathBuf) {
 /// # Arguments
 ///
 /// * `file_name` - Markdown file name
-fn create_markdown_file(file_name: &str) -> Result<PathBuf, std::io::Error> {
+fn create_markdown_file(file_name: PathBuf) -> Result<PathBuf, std::io::Error> {
     let desc = DefaultContractDescriptor::new();
     let contract_info = desc.get_contract_info_for_crate();
     let markdown = ScannerPipeline::from(contract_info, FlowDirection::TD);

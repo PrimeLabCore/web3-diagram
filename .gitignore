@@ -15,3 +15,8 @@ example/.DS_Store
 example/res
 
 .DS_Store
+
+# ignore md and generated files
+cargo-diagram/*.md
+**/*.svg
+**/*.png
