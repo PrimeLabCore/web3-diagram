@@ -5,6 +5,8 @@
 //! Optional parameters are output, format, scale, height, width, background color, quiet.
 //!
 //! For more detailed info run with `--help` or `-h` flag.
+pub mod svg;
+use svg::{load_from_data,load_from_path};
 use minidom;
 //use scanner_syn;
 use minidom::Element;
@@ -171,3 +173,4 @@ fn create_markdown_file(file_name: PathBuf) -> Result<PathBuf, std::io::Error> {
     fs::write(path.clone(), markdown.content).expect("Unable to write file");
     Ok(path.clone())
 }
+

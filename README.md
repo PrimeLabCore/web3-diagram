@@ -29,6 +29,12 @@
 
 <br>
 
+## Install Rust
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+<br>
+
 ## Install cli with [brew](https://brew.sh/)
 
 ```bash
@@ -61,7 +67,7 @@ git clone git@github.com:near-examples/rust-ft-raffle.git
 cd rust-ft-raffle
 ```
 
-### 3) Run utility againt cloned smart contract
+### 3) Run utility againt cloned smart contract and open in web browser
 ```bash
 web3d -O --input raffle.md
 ```
