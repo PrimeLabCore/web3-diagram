@@ -14,4 +14,4 @@ repository = "https://github.com/NearPrime/web3-diagram"
 strum = "0.24"
 strum_macros = "0.24"
 enum-as-inner = "0.4.0"
-scanner-syn = {path = "../scanner-syn"}
+scanner-syn = {path = "../scanner-syn", version = "0.1.0"}
