@@ -2,7 +2,11 @@
 name = "mermaid-markdown-api"
 version = "0.1.0"
 edition = "2021"
-authors = ["Nicholas Vincent <nicholas.vincent@primelab.io>"]
+authors = ["Nicholas Vincent <support@primelab.io>"]
+description = "Generating markdown for mermaid diagrams"
+homepage = "https://primelab.io/"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/NearPrime/web3-diagram"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,4 +14,4 @@ authors = ["Nicholas Vincent <nicholas.vincent@primelab.io>"]
 strum = "0.24"
 strum_macros = "0.24"
 enum-as-inner = "0.4.0"
-scanner-syn = {path = "../scanner-syn"}
+scanner-syn = {path = "../scanner-syn", version = "0.1.0"}
