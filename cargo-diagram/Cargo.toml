@@ -17,5 +17,5 @@ clap = { version = "3.1.6", features = ["derive"] }
 subprocess = "0.2.8"
 minidom = "0.14.0"
 
-scanner-syn = { path = "../scanner-syn", version = "4.0.0-pre.7" }
+scanner-syn = { path = "../scanner-syn", version = "0.1.0" }
 mermaid-markdown-api={path = "../mermaid-markdown-api", version = "0.1.0"}

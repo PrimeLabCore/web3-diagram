@@ -12,13 +12,13 @@
 [package]
 edition = "2018"
 name = "scanner-syn"
-version = "4.0.0-pre.7"
-authors = ["Near Inc <max@nearprotocol.com>"]
-description = "Main macro of the library for writing NEAR smart contracts.\n"
-homepage = "https://near-sdk.io"
+version = "0.1.0"
+authors = ["PrimeLab <info@primelab.io>"]
+description = "Scanning near smart contract with syn"
+homepage = "https://primelab.io/"
 categories = ["wasm"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/near/near-sdk-rs"
+repository = "https://github.com/NearPrime/web3-diagram"
 
 [lib]
 proc-macro = false
