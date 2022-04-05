@@ -5,6 +5,8 @@
 //! Optional parameters are output, format, scale, height, width, background color, quiet.
 //!
 //! For more detailed info run with `--help` or `-h` flag.
+pub mod svg;
+use svg::{load_from_data,load_from_path};
 use minidom;
 //use scanner_syn;
 use minidom::Element;
@@ -20,7 +22,6 @@ use mermaid_markdown_api::syntax::FlowDirection;
 use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 use std::env;
 use std::fs::{self, File};
-
 fn main() -> Result<(), subprocess::PopenError> {
     
     let matches = Command::new("cargo-diagram")
@@ -233,6 +234,7 @@ fn main() -> Result<(), subprocess::PopenError> {
 
     // TODO: Create the output files with the given extension from the svg file
     let mut opt = usvg::Options {
+        
         resources_dir: std::fs::canonicalize(output_path.clone())
             .ok()
             .and_then(|p| p.parent().map(|p| p.to_path_buf())),
@@ -319,3 +321,4 @@ fn create_markdown_file(file_name: &str) -> Result<PathBuf, std::io::Error> {
 
     Ok(path.clone())
 }
+
