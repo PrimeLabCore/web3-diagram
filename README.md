@@ -43,6 +43,16 @@ brew install mermaid-cli
 
 <br>
 
+## Install web3d diagram utility
+
+```bash
+cargo install web3d 
+```
+
+<br>
+   
+
+
 ## Install [node](https://gist.github.com/tomysmile/da3cb8194ec8f0e4df86#install-node)
 
 ```bash
