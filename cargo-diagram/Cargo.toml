@@ -2,7 +2,7 @@
 name = "web3d"
 version = "0.1.0"
 edition = "2021"
-authors = ["PrimeLab <info@primelab.io>"]
+authors = ["PrimeLab <support@primelab.io>"]
 repository = "https://github.com/NearPrime/web3-diagram/"
 license = "MIT OR Apache-2.0"
 homepage = "https://primelab.io/"

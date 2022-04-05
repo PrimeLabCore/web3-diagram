@@ -13,7 +13,7 @@
 edition = "2018"
 name = "scanner-syn"
 version = "0.1.0"
-authors = ["PrimeLab <info@primelab.io>"]
+authors = ["PrimeLab <support@primelab.io>"]
 description = "Scanning near smart contract with syn"
 homepage = "https://primelab.io/"
 categories = ["wasm"]
