@@ -115,6 +115,9 @@ impl DefaultContractDescriptor {
     pub fn new() -> Self {
         Self {}
     }
+    pub fn version()-> String{
+        String::from("0.0.1")
+    }
     fn get_inner_calls(
         &self,
         fn_name: String,
@@ -194,6 +197,7 @@ impl DefaultContractDescriptor {
             ))
         }
     }
+    
 }
 
 ///Implement contract descriptor trait for DefaultContractDescriptor

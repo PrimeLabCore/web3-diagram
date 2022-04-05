@@ -22,6 +22,7 @@ use std::env;
 use std::fs::{self, File};
 
 fn main() -> Result<(), subprocess::PopenError> {
+    
     let matches = Command::new("cargo-diagram")
         /*.arg(Arg::new("path")
             .short('p')
