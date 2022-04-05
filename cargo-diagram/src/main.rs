@@ -142,7 +142,7 @@ fn main() -> Result<(), subprocess::PopenError> {
 ///
 /// * `output_path` - Output file path to open in browser
 fn open_output_file_in_browser(output_path: PathBuf) {
-    let command = vec!["open", "-a", "Google Chrome", output_path.to_str().unwrap()];
+    let command = vec!["xdg-open", output_path.to_str().unwrap()];
 
     let mut executor = Popen::create(
         &command,
