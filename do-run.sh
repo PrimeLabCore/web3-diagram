@@ -1,4 +1,4 @@
 set -e
-cargo build --release
+cargo build --workspace --release 
 cd ./example
-../target/release/cargo-diagram -O --input diagram.md
+../target/release/web3d -O --input diagram.md

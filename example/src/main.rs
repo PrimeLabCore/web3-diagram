@@ -8,7 +8,7 @@ fn main() {
   
 
     let desc = DefaultContractDescriptor::new();
-    let contract_info = desc.get_contract_info_for_crate();
+    let contract_info = desc.get_contract_info_for_crate(Some("."));
     let markdown = ScannerPipeline::from(contract_info, FlowDirection::TD);
     println!("{:?}", markdown.content);
 }

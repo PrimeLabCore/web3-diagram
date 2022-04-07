@@ -1,7 +1,8 @@
 use proc_macro2::{Ident, Span};
 use std::io::Read;
 use std::iter::IntoIterator;
-use std::ops::Deref;
+
+
 use std::{fs::File, path::Path};
 use syn::{Item, ItemStruct};
 
@@ -102,7 +103,7 @@ impl ToTokens for FunctionInfo {
 ///Trait near smart contracts descriptor
 pub trait ContractDescriptor {
     ///Gets the contract information inside the current crate
-    fn get_contract_info_for_crate(&self) -> ContractInfo;
+    fn get_contract_info_for_crate(&self,root:Option<&str>) -> ContractInfo;
     fn get_tokens_from_file_path(&self, file_path: &Path) -> ContractDescriptorMeta;
     fn get_tokens_from_source(&self, src: String) -> ContractDescriptorMeta;
 }
@@ -202,11 +203,12 @@ impl DefaultContractDescriptor {
 
 ///Implement contract descriptor trait for DefaultContractDescriptor
 impl ContractDescriptor for DefaultContractDescriptor {
-    fn get_contract_info_for_crate(&self) -> ContractInfo {
+    fn get_contract_info_for_crate(&self,root:Option<&str>) -> ContractInfo {
         let mut contract_metadata: Vec<ContractDescriptorMeta> = vec![];
         let mut fns: Vec<FunctionInfo> = vec![];
         // Walk into every dir to find every `rs` file
-        for entry in WalkDir::new(".").into_iter().filter_map(|e| {
+        let root_path=root.unwrap_or(".");
+        for entry in WalkDir::new(root_path).into_iter().filter_map(|e| {
             let dir = e.unwrap().clone();
             if !dir.path().to_str().unwrap().contains("test") {
                 return Some(dir);
