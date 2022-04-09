@@ -26,10 +26,19 @@
 | Mutation Trait Impl | Mutable functions but trait implamentation |
 | Payable | Functions that except Near |
 | Initializers | Smart contract initializer functions |
+<br>
+## Supported OS
+
+| Linux | MacOs | Windows |
+| ---- | ----- | ------- |
+| Yes | Yes | Yes(WSL) |
 
 <br>
 
 # Installation
+
+
+
 ## Install Rust
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -93,6 +102,7 @@ web3d -O --input raffle.md
 | -h, --help | Print help information |
 | -H, --height | Height of the page. Optional. Default: 600 |
 | -i, --input  | Markdown file name |
+| -n, --cname  | Contract name |
 | -o, --output | Output file name. It should be either md, svg, png or pdf. Optional. Default:'./res/input_file_name.svg' |
 | -O, --openb | Should open output file in browser |
 | -q, --quiet | Suppress log output |

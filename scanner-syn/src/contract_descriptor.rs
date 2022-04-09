@@ -45,6 +45,7 @@ pub struct FunctionInfo {
 ///Contract information from the code scanned by ContractDescriptor
 pub struct ContractInfo {
     pub contract_metadata: Vec<ContractDescriptorMeta>,
+    pub contract_name:Option<String>,
 }
 #[derive(Debug)]
 pub struct ContractDescriptorMeta {
@@ -103,7 +104,7 @@ impl ToTokens for FunctionInfo {
 ///Trait near smart contracts descriptor
 pub trait ContractDescriptor {
     ///Gets the contract information inside the current crate
-    fn get_contract_info_for_crate(&self,root:Option<&str>) -> ContractInfo;
+    fn get_contract_info_for_crate(&self,root:Option<&str>,contract_name:Option<String>) -> ContractInfo;
     fn get_tokens_from_file_path(&self, file_path: &Path) -> ContractDescriptorMeta;
     fn get_tokens_from_source(&self, src: String) -> ContractDescriptorMeta;
 }
@@ -203,7 +204,7 @@ impl DefaultContractDescriptor {
 
 ///Implement contract descriptor trait for DefaultContractDescriptor
 impl ContractDescriptor for DefaultContractDescriptor {
-    fn get_contract_info_for_crate(&self,root:Option<&str>) -> ContractInfo {
+    fn get_contract_info_for_crate(&self,root:Option<&str>,contract_name:Option<String>) -> ContractInfo {
         let mut contract_metadata: Vec<ContractDescriptorMeta> = vec![];
         let mut fns: Vec<FunctionInfo> = vec![];
         // Walk into every dir to find every `rs` file
@@ -233,6 +234,7 @@ impl ContractDescriptor for DefaultContractDescriptor {
         //println!("\n{:?}", resolved);
         ContractInfo {
             contract_metadata: resolved,
+            contract_name,
         }
     }
 

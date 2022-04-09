@@ -63,8 +63,11 @@ struct Cli {
     #[clap(short, long, value_name = "WIDTH")]
     width: Option<String>,
     /// Output file format. Optional. Default: Svg
-    #[clap(short, long = "format", value_name = "FORMAT")]
-    format: Option<String>,
+    // #[clap(short, long = "format", value_name = "FORMAT")]
+    // format: Option<String>,
+    /// Contract name. Optional. Default: Contract
+    #[clap(short='n', long = "cname", value_name = "CNAME")]
+    contract_name: Option<String>,
     /// Background color. Example: transparent, red, '#F0F0F0'. Optional. Default: white
     #[clap(short, long, value_name = "COLOR")]
     background_color: Option<String>,
@@ -81,11 +84,11 @@ impl Cli {
     ///
     /// Returns created file path
     fn pass_to_mmdc(&self) -> Result<PathBuf, subprocess::PopenError> {
-        let input_file_path: PathBuf = self.create_markdown_file(self.input_file.clone()).unwrap();
+        let input_file_path: PathBuf = self.create_markdown_file(self.input_file.clone(),self.contract_name.clone()).unwrap();
 
         let mut command = vec!["mmdc", "-i", input_file_path.to_str().unwrap()];
 
-        let mut output_path = if let Some(output_file) = &self.output_file {
+        let output_path = if let Some(output_file) = &self.output_file {
             output_file.clone()
         } else {
             let mut output_path = input_file_path.clone();
@@ -189,7 +192,7 @@ impl Cli {
     /// # Arguments
     ///
     /// * `file_name` - Markdown file name
-    fn create_markdown_file(&self, file_name: PathBuf) -> Result<PathBuf, std::io::Error> {
+    fn create_markdown_file(&self, file_name: PathBuf,contract_name:Option<String>) -> Result<PathBuf, std::io::Error> {
         let mut current_dir = env::current_dir().expect("Can not resolve current directory");
 
         if current_dir.ends_with("res") || current_dir.ends_with("src") {
@@ -203,7 +206,7 @@ impl Cli {
         }
 
         let desc = DefaultContractDescriptor::new();
-        let contract_info = desc.get_contract_info_for_crate(current_dir.clone().to_str());
+        let contract_info = desc.get_contract_info_for_crate(current_dir.clone().to_str(),contract_name);
         let markdown = ScannerPipeline::from(contract_info, FlowDirection::TD);
         //println!("{:?}", markdown.content);
 

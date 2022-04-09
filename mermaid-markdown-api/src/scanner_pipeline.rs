@@ -108,7 +108,7 @@ pub struct ScannerPipeline {
 impl ScannerPipeline {
     pub fn from(contract: ContractInfo, flow_direction: FlowDirection) -> ScannerPipeline {
         let mut hierarchy_tree_root = Node {
-            name: "Contract".to_string(),
+            name: contract.contract_name.unwrap().replace(" ","-"),
             scope: ScopeType::Contract,
             action: ActionType::None,
             connections: Vec::new(),
