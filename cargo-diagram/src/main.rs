@@ -6,15 +6,13 @@
 //!
 //! For more detailed info run with `--help` or `-h` flag.
 pub mod svg;
-use minidom;
 use svg::{load_from_data, load_from_path};
 //use scanner_syn;
-use minidom::Element;
-use std::io::{Error, ErrorKind, self};
-use std::path::{Path, PathBuf};
-use usvg::{Node, NodeExt};
-
 use clap::Parser;
+use std::fmt::Display;
+use std::io::{self, Error, ErrorKind, Write};
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
 use subprocess::{Popen, PopenConfig, Redirection};
 // use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 
@@ -23,6 +21,28 @@ use mermaid_markdown_api::syntax::FlowDirection;
 use scanner_syn::contract_descriptor::{ContractDescriptor, DefaultContractDescriptor};
 use std::env;
 use std::fs::{self, File};
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+pub enum OutputFormat {
+    Svg,
+    Png,
+    Pdf,
+    Jpg,
+}
+impl FromStr for OutputFormat {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<OutputFormat, Self::Err> {
+        match input {
+            "Jpg" => Ok(OutputFormat::Jpg),
+            "Pdf" => Ok(OutputFormat::Pdf),
+            "Png" => Ok(OutputFormat::Png),
+            "Svg" => Ok(OutputFormat::Svg),
+            _ => Ok(OutputFormat::Svg),
+        }
+    }
+}
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -42,6 +62,9 @@ struct Cli {
     /// Width of the page. Optional. Default: 800
     #[clap(short, long, value_name = "WIDTH")]
     width: Option<String>,
+    /// Output file format. Optional. Default: Svg
+    #[clap(short, long = "format", value_name = "FORMAT")]
+    format: Option<String>,
     /// Background color. Example: transparent, red, '#F0F0F0'. Optional. Default: white
     #[clap(short, long, value_name = "COLOR")]
     background_color: Option<String>,
@@ -58,11 +81,11 @@ impl Cli {
     ///
     /// Returns created file path
     fn pass_to_mmdc(&self) -> Result<PathBuf, subprocess::PopenError> {
-        let input_file_path: PathBuf = create_markdown_file(self.input_file.clone()).unwrap();
+        let input_file_path: PathBuf = self.create_markdown_file(self.input_file.clone()).unwrap();
 
         let mut command = vec!["mmdc", "-i", input_file_path.to_str().unwrap()];
 
-        let output_path = if let Some(output_file) = &self.output_file {
+        let mut output_path = if let Some(output_file) = &self.output_file {
             output_file.clone()
         } else {
             let mut output_path = input_file_path.clone();
@@ -117,101 +140,102 @@ impl Cli {
                 ..PopenConfig::default()
             },
         )?;
-        println!("Adding logo");
 
         let _ = mmdc.wait();
-        // self.add_logo(output_path.clone());
         Ok(output_path)
     }
-    fn add_logo(&self, output_path: PathBuf) {
-        let tree = load_from_path(output_path.as_path()).unwrap();
-        let logo_data = include_bytes!("logo.svg");
+    fn add_logo(&self, output_path: &mut PathBuf) {
+        let mut logo_str = include_str!("logo.svg").to_owned();
+        let shape_str = include_str!("shapes.svg");
+        logo_str.push_str(shape_str);
 
-        let logo_tree = load_from_data(logo_data).unwrap();
+        let mut contents =
+            fs::read_to_string(output_path.clone()).expect("Something went wrong reading the file");
 
-        let mut tree_root = tree.root();
-        let logo_root = logo_tree.root();
+        let index_of_style = contents.find("<style").unwrap();
+        contents.insert_str(index_of_style, logo_str.as_str());
+        //println!("With text:\n{}", contents);
+        File::create(output_path)
+            .unwrap()
+            .write_all(contents.as_bytes())
+            .unwrap();
+    }
 
-        tree_root.prepend(logo_root);
+    /// Function opens output file in web browser
+    ///
+    /// # Arguments
+    ///
+    /// * `output_path` - Output file path to open in browser
+    fn open_output_file_in_browser(&self, output_path: PathBuf) {
+        println!("opening {:?}", output_path.to_str().unwrap());
+        let command = vec!["open", "-a", "Google Chrome", output_path.to_str().unwrap()];
 
-        // println!("{:?}", tree_root.into());
-        // File::create(&output_path)
-        //     .unwrap()
+        let mut executor = Popen::create(
+            &command,
+            PopenConfig {
+                stdout: Redirection::Pipe,
+                ..PopenConfig::default()
+            },
+        )
+        .unwrap();
 
-        //     .write_all(tree.root().())
-        //     .unwrap();
+        let _ = executor
+            .wait()
+            .expect("Could not open file in google chrome, try open it manualiy");
+    }
+
+    /// Function creates markdown file with specified file name
+    ///
+    /// # Arguments
+    ///
+    /// * `file_name` - Markdown file name
+    fn create_markdown_file(&self, file_name: PathBuf) -> Result<PathBuf, std::io::Error> {
+        let mut current_dir = env::current_dir().expect("Can not resolve current directory");
+
+        if current_dir.ends_with("res") || current_dir.ends_with("src") {
+            current_dir.pop();
+        }
+        if !self
+            .does_folder_exist_in_directory("src", current_dir.clone())
+            .unwrap()
+        {
+            panic!("You are not in crate dir");
+        }
+
+        let desc = DefaultContractDescriptor::new();
+        let contract_info = desc.get_contract_info_for_crate(current_dir.clone().to_str());
+        let markdown = ScannerPipeline::from(contract_info, FlowDirection::TD);
+        //println!("{:?}", markdown.content);
+
+        if !current_dir.ends_with("res") {
+            current_dir.push("res/");
+        }
+        std::fs::create_dir_all(current_dir.clone())?;
+        current_dir.push(file_name);
+        fs::write(current_dir.clone(), markdown.content).expect("Unable to write file");
+        Ok(current_dir.clone())
+    }
+    fn does_folder_exist_in_directory(
+        &self,
+        folder: &str,
+        directory_path: PathBuf,
+    ) -> io::Result<bool> {
+        let mut dir = directory_path.clone();
+        dir.push(folder);
+        let metadata = fs::metadata(dir).expect("You are not in crate directory!");
+        Ok(metadata.is_dir())
     }
 }
 
 fn main() -> Result<(), subprocess::PopenError> {
     let args = Cli::parse();
-    let output_path = args.pass_to_mmdc()?;
+    let mut output_path = args.pass_to_mmdc()?;
 
-    // println!(
-    //     "{}",
-    //     args.input_file.into_os_string().into_string().unwrap()
-    // );
+    args.add_logo(&mut output_path);
 
     if args.openb {
-        open_output_file_in_browser(output_path);
+        args.open_output_file_in_browser(output_path);
     }
+
     Ok(())
-}
-
-/// Function opens output file in web browser
-///
-/// # Arguments
-///
-/// * `output_path` - Output file path to open in browser
-fn open_output_file_in_browser(output_path: PathBuf) {
-    println!("opening {:?}", output_path.to_str().unwrap());
-    let command = vec!["open", "-a", "Google Chrome", output_path.to_str().unwrap()];
-
-    let mut executor = Popen::create(
-        &command,
-        PopenConfig {
-            stdout: Redirection::Pipe,
-            ..PopenConfig::default()
-        },
-    )
-    .unwrap();
-
-    let _ = executor
-        .wait()
-        .expect("Could not open file in google chrome, try open it manualiy");
-}
-
-/// Function creates markdown file with specified file name
-///
-/// # Arguments
-///
-/// * `file_name` - Markdown file name
-fn create_markdown_file(file_name: PathBuf) -> Result<PathBuf, std::io::Error> {
-    let mut current_dir = env::current_dir().expect("Can not resolve current directory");
-   
-    if current_dir.ends_with("res") || current_dir.ends_with("src"){
-        current_dir.pop();
-    }
-    if !does_folder_exist_in_directory("src",current_dir.clone()).unwrap(){
-        panic!("You are not in crate dir");
-    }
-
-    let desc = DefaultContractDescriptor::new();
-    let contract_info = desc.get_contract_info_for_crate(current_dir.clone().to_str());
-    let markdown = ScannerPipeline::from(contract_info, FlowDirection::TD);
-    //println!("{:?}", markdown.content);
-
-    if !current_dir.ends_with("res") {
-        current_dir.push("res/");
-    }
-    std::fs::create_dir_all(current_dir.clone())?;
-    current_dir.push(file_name);
-    fs::write(current_dir.clone(), markdown.content).expect("Unable to write file");
-    Ok(current_dir.clone())
-}
-fn does_folder_exist_in_directory(folder:&str,directory_path:PathBuf) -> io::Result<bool> {
-    let mut dir=directory_path.clone();
-    dir.push(folder);
-    let metadata = fs::metadata(dir).expect("You are not in crate directory!");
-    Ok(metadata.is_dir())
 }
