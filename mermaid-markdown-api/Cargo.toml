@@ -1,6 +1,6 @@
 [package]
 name = "mermaid-markdown-api"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Nicholas Vincent <support@primelab.io>"]
 description = "Generating markdown for mermaid diagrams"
@@ -14,4 +14,4 @@ repository = "https://github.com/NearPrime/web3-diagram"
 strum = "0.24"
 strum_macros = "0.24"
 enum-as-inner = "0.4.0"
-scanner-syn = {path = "../scanner-syn", version = "0.1.0"}
+scanner-syn = {path = "../scanner-syn", version = "0.2.0"}

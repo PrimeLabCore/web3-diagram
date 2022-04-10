@@ -719,7 +719,7 @@ checksum = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3"
 
 [[package]]
 name = "mermaid-markdown-api"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "enum-as-inner",
  "scanner-syn",
@@ -1403,7 +1403,7 @@ dependencies = [
 
 [[package]]
 name = "scanner-syn"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "Inflector",
  "proc-macro2",
@@ -1870,7 +1870,7 @@ checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
 
 [[package]]
 name = "web3d"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "mermaid-markdown-api",

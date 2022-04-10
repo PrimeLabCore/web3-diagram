@@ -12,7 +12,7 @@
 [package]
 edition = "2018"
 name = "scanner-syn"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["PrimeLab <support@primelab.io>"]
 description = "Scanning near smart contract with syn"
 homepage = "https://primelab.io/"

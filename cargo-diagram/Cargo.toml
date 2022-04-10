@@ -1,6 +1,6 @@
 [package]
 name = "web3d"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["PrimeLab <support@primelab.io>"]
 repository = "https://github.com/NearPrime/web3-diagram/"
@@ -21,5 +21,5 @@ usvg = "0.22.0"
 resvg = "0.22.0"
 svg2pdf = "0.3.0"
 tiny-skia = "0.6.3"
-scanner-syn = { path = "../scanner-syn", version = "0.1.0" }
-mermaid-markdown-api={path = "../mermaid-markdown-api", version = "0.1.0"}
+scanner-syn = { path = "../scanner-syn", version = "0.2.0" }
+mermaid-markdown-api={path = "../mermaid-markdown-api", version = "0.2.0"}
