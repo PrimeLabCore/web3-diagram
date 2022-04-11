@@ -18,5 +18,5 @@ example/res
 
 # ignore md and generated files
 cargo-diagram/*.md
-**/*.svg
+
 **/*.png
