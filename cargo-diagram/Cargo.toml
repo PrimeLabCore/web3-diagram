@@ -11,9 +11,6 @@ description = """
 Creating diagrams for near smart contracts
 """
 
-[[bin]]
-name="web3d"
-path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
