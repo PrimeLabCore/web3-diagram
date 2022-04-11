@@ -4,12 +4,16 @@ version = "0.2.0"
 edition = "2021"
 authors = ["PrimeLab <support@primelab.io>"]
 repository = "https://github.com/NearPrime/web3-diagram/"
+include = ["/src/logo.svg", "src/shapes.svg"]
 license = "MIT OR Apache-2.0"
 homepage = "https://primelab.io/"
 description = """
 Creating diagrams for near smart contracts
 """
-include = ["/src/logo.svg", "src/shapes.svg"]
+
+[[bin]]
+name="web3d"
+path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
