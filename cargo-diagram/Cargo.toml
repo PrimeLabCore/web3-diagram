@@ -9,6 +9,7 @@ homepage = "https://primelab.io/"
 description = """
 Creating diagrams for near smart contracts
 """
+include = ["/src/logo.svg", "src/shapes.svg"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
