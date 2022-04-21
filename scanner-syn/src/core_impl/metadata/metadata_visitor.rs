@@ -74,9 +74,10 @@ impl<'ast> Visit<'ast> for MetadataVisitor {
 
     // TODO: find a way to not parse all(59) ways we can call a function
     fn visit_expr_call(&mut self, i: &'ast ExprCall) {
-        let (_name, functions) = self.connections.last_mut().expect("Not stable way");
-        functions.push(i.func.to_token_stream());
-        syn::visit::visit_expr_call(self, i);
+        if let Some((_name, functions)) = self.connections.last_mut() {
+            functions.push(i.func.to_token_stream());
+            syn::visit::visit_expr_call(self, i);
+        }
     }
 
     fn visit_expr_method_call(&mut self, i: &'ast ExprMethodCall) {

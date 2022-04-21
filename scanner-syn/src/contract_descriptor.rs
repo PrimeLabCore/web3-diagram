@@ -2,7 +2,6 @@ use proc_macro2::{Ident, Span};
 use std::io::Read;
 use std::iter::IntoIterator;
 
-
 use std::{fs::File, path::Path};
 use syn::{Item, ItemStruct};
 
@@ -45,7 +44,7 @@ pub struct FunctionInfo {
 ///Contract information from the code scanned by ContractDescriptor
 pub struct ContractInfo {
     pub contract_metadata: Vec<ContractDescriptorMeta>,
-    pub contract_name:Option<String>,
+    pub contract_name: Option<String>,
 }
 #[derive(Debug)]
 pub struct ContractDescriptorMeta {
@@ -104,7 +103,11 @@ impl ToTokens for FunctionInfo {
 ///Trait near smart contracts descriptor
 pub trait ContractDescriptor {
     ///Gets the contract information inside the current crate
-    fn get_contract_info_for_crate(&self,root:Option<&str>,contract_name:Option<String>) -> ContractInfo;
+    fn get_contract_info_for_crate(
+        &self,
+        root: Option<&str>,
+        contract_name: Option<String>,
+    ) -> ContractInfo;
     fn get_tokens_from_file_path(&self, file_path: &Path) -> ContractDescriptorMeta;
     fn get_tokens_from_source(&self, src: String) -> ContractDescriptorMeta;
 }
@@ -117,7 +120,7 @@ impl DefaultContractDescriptor {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn version()-> String{
+    pub fn version() -> String {
         String::from("0.0.1")
     }
     fn get_inner_calls(
@@ -126,15 +129,15 @@ impl DefaultContractDescriptor {
         connections: Vec<FunctionInfo>,
         fns: Vec<FunctionInfo>,
     ) -> Option<Vec<FunctionInfo>> {
-        let mut def=fn_name;
-        if def=="def_ault"{
-            def=def.replace("def_ault", "default");
+        let mut def = fn_name;
+        if def == "Default" {
+            def = def.replace("Default", "default");
+        }
+        if def.contains("_self__") {
+            def = def.replace("_self__", "_self");
         }
 
-        let con_info = connections
-            .into_iter()
-            .find(|el| def == el.name)
-            .unwrap();
+        let con_info = connections.into_iter().find(|el| def == el.name).unwrap();
 
         let mut fn_iter = fns.into_iter();
 
@@ -187,6 +190,7 @@ impl DefaultContractDescriptor {
             visitor.visit_file(&input);
             let connections = visitor.get_connections();
             let fns = visitor.generate_metadata_method().unwrap();
+            //println!("{:?}",fns);
             syn::Result::Ok(ContractDescriptorMeta {
                 fns,
                 connections: Some(connections),
@@ -199,16 +203,19 @@ impl DefaultContractDescriptor {
             ))
         }
     }
-    
 }
 
 ///Implement contract descriptor trait for DefaultContractDescriptor
 impl ContractDescriptor for DefaultContractDescriptor {
-    fn get_contract_info_for_crate(&self,root:Option<&str>,contract_name:Option<String>) -> ContractInfo {
+    fn get_contract_info_for_crate(
+        &self,
+        root: Option<&str>,
+        contract_name: Option<String>,
+    ) -> ContractInfo {
         let mut contract_metadata: Vec<ContractDescriptorMeta> = vec![];
         let mut fns: Vec<FunctionInfo> = vec![];
         // Walk into every dir to find every `rs` file
-        let root_path=root.unwrap_or(".");
+        let root_path = root.unwrap_or(".");
         for entry in WalkDir::new(root_path).into_iter().filter_map(|e| {
             let dir = e.unwrap().clone();
             if !dir.path().to_str().unwrap().contains("test") {

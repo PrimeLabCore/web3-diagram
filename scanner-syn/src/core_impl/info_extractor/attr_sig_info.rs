@@ -38,24 +38,24 @@ impl AttrSigInfo {
         original_attrs: &mut Vec<Attribute>,
         original_sig: &mut Signature,
     ) -> syn::Result<Self> {
-        if original_sig.asyncness.is_some() {
-            return Err(Error::new(
-                original_sig.span(),
-                "Contract API is not allowed to be async.",
-            ));
-        }
-        if original_sig.abi.is_some() {
-            return Err(Error::new(
-                original_sig.span(),
-                "Contract API is not allowed to have binary interface.",
-            ));
-        }
-        if original_sig.variadic.is_some() {
-            return Err(Error::new(
-                original_sig.span(),
-                "Contract API is not allowed to have variadic arguments.",
-            ));
-        }
+        // if original_sig.asyncness.is_some() {
+        //     return Err(Error::new(
+        //         original_sig.span(),
+        //         "Contract API is not allowed to be async.",
+        //     ));
+        // }
+        // if original_sig.abi.is_some() {
+        //     return Err(Error::new(
+        //         original_sig.span(),
+        //         "Contract API is not allowed to have binary interface.",
+        //     ));
+        // }
+        // if original_sig.variadic.is_some() {
+        //     return Err(Error::new(
+        //         original_sig.span(),
+        //         "Contract API is not allowed to have variadic arguments.",
+        //     ));
+        // }
 
         let ident = original_sig.ident.clone();
         let mut non_bindgen_attrs = vec![];

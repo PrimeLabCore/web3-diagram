@@ -16,8 +16,12 @@ impl ImplItemMethodInfo {
     /// * The struct that contains information about the method.
     pub fn metadata_struct(&self) -> FunctionInfo {
         let mut method_name_str = self.attr_signature_info.ident.to_string();
-        if method_name_str=="default"{
-            method_name_str=method_name_str.replace("default", "def_ault");
+        if method_name_str == "default" {
+            method_name_str = method_name_str.replace("default", "Default");
+        }
+
+        if method_name_str.contains("_self") {
+            method_name_str = method_name_str.replace("_self", "_self__");
         }
         let is_event = type_is_event(&self.struct_type);
         if !is_event && !self.has_near_sdk_attr {
@@ -144,8 +148,16 @@ impl ImplItemMethodInfo {
 ///
 /// * The `FunctionInfo` struct that contains information about the function.
 pub fn metadata_fn_struct(sig_info: &AttrSigInfo) -> FunctionInfo {
-    let method_name_str = sig_info.ident.to_string();
+    let mut method_name_str = sig_info.ident.to_string();
+    if method_name_str == "default" {
+        method_name_str = method_name_str.replace("default", "Default");
+    }
 
+    if method_name_str.contains("_self") {
+        println!("{}", method_name_str);
+        method_name_str = method_name_str.replace("_self", "_self__");
+        println!("{}", method_name_str);
+    }
     FunctionInfo {
         name: method_name_str,
         is_process: matches!(sig_info.returns, ReturnType::Default),
